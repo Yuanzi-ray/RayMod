@@ -336,7 +336,20 @@ public static class AmmoCmd
     /// 消耗弹药，返回<b>实际消耗量</b>（弹药不足时少于请求量）。
     /// 「狙击」「霰弹枪」这类"消耗所有弹药"的牌要用返回值来决定效果强度。
     /// </summary>
-    public static int ConsumeAmmo(Player player, int amount)
+    /// <param name="player">谁在消耗。</param>
+    /// <param name="amount">想消耗多少。</param>
+    /// <param name="isAttackCard">
+    /// ★ 2026-10-16 新增：这次消耗**是不是一张攻击牌**引起的。默认 <c>true</c>（保持旧行为不变）。
+    ///
+    /// <para><b>为什么需要它</b>（玩家实机反馈）：子弹模式下**每张牌**都要花弹药，
+    /// 而本方法原来**无条件**播开火音 <see cref="Sfx.Shot"/> ⇒ 打「防御」这类**非攻击牌**也响一枪，
+    /// 听起来像在开枪。非攻击牌改播 <see cref="Sfx.Reload"/>（装填音）——
+    /// 「子弹模式」的语义本来就是"把弹药当作费用花掉"，不是"开一枪"。</para>
+    ///
+    /// <para>⚠️ 默认值必须是 <c>true</c>：其余调用方（狙击 / 霰弹枪 / 爆破 / 得见光芒 /
+    /// 精制子弹）消耗弹药时**确实就是在开火**，行为一个字节都不能变。</para>
+    /// </param>
+    public static int ConsumeAmmo(Player player, int amount, bool isAttackCard = true)
     {
         if (amount <= 0)
         {
@@ -357,10 +370,11 @@ public static class AmmoCmd
 
             // 音效：真的打出去子弹了才响开火声（弹药不足、一点没消耗时不响）。
             // 同样放在结算之后 —— 放音绝不能影响弹药。
+            // ★ 2026-10-16：非攻击牌（子弹模式下打「防御」这类）改播装填音，
+            //   否则每张牌都响一枪（玩家实机反馈）。
             if (used > 0)
             {
-                // ★ 2026-10-15：带 player（门控见 SfxPlayer.Play 重载，§S47）。
-                Audio.SfxPlayer.Play(Audio.Sfx.Shot, player);
+                Audio.SfxPlayer.Play(isAttackCard ? Audio.Sfx.Shot : Audio.Sfx.Reload, player);
             }
 
             return used;

@@ -17,15 +17,17 @@ namespace RayMod.Cards;
 ///
 /// <list type="table">
 ///   <item><term>RayMod.Cards.<b>Feed</b></term>
-///       <description>原版 <c>MegaCrit.Sts2.Core.Models.Cards.Feed</c> —— <b>铁甲战士</b>的牌</description></item>
-///   <item><term>RayMod.Cards.<b>Darkness</b></term>
-///       <description>原版 <c>MegaCrit.Sts2.Core.Models.Cards.Darkness</c> —— <b>静默猎手</b>的牌</description></item>
+///       <description>原版 <c>MegaCrit.Sts2.Core.Models.Cards.Feed</c> —— <b>铁甲战士</b>的牌。**仍撞名**</description></item>
+///   <item><term>~~RayMod.Cards.<b>Darkness</b>~~ ⇒ 已于 2026-10-16 改名为 <b>RayDarkness</b></term>
+///       <description>原版 <c>…Cards.Darkness</c>（中文名「漆黑」）是 <b>故障机器人</b>的牌。
+///       ⚠️ 我们那张「黑暗之下」原来也叫 `Darkness` ⇒ **卡 ID 撞成 `RAY_MOD_CARD_DARKNESS`**，
+///       卡面美化 mod 会张冠李戴（玩家反馈）。**已改名，连卡图 / 本地化键 / 查表键一起改**。</description></item>
 /// </list>
 ///
-/// <para>⇒ 于是"装了本 mod 但玩别的角色"时，打原版的 <c>Feed</c> / <c>Darkness</c>
-/// 会命中<b>我们</b>的表项：铁甲战士嘴里冒出莱伊的台词、放莱伊的音效，静默猎手的
-/// <c>Darkness</c> 同理。这就是用户 2026-10-15 报的
-/// <b>"语音和音效别的角色也会触发"</b>（不是联机问题 —— 单机也这样）。</para>
+/// <para>⇒ 于是"装了本 mod 但玩别的角色"时，打原版的 <c>Feed</c>（**以及改名前的 <c>Darkness</c>**）
+/// 会命中<b>我们</b>的表项：铁甲战士嘴里冒出莱伊的台词、放莱伊的音效。这就是用户 2026-10-15 报的
+/// <b>"语音和音效别的角色也会触发"</b>（不是联机问题 —— 单机也这样）。
+/// ⚠️ `Darkness` 改名后**只剩 `Feed` 一处**靠本判据兜着。</para>
 ///
 /// <para><b>判据本身</b>：命名空间以 <c>RayMod.</c> 开头（我们的卡全在 <c>RayMod.Cards</c>）。
 /// 与 <c>Patches\CardPartArtPatch.IsOurCard</c> <b>完全同一套口径</b> ——

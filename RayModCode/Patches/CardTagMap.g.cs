@@ -29,7 +29,7 @@ internal static class CardTagMap
         ["Cannon"] = "a",
         ["Continuous"] = "d",
         ["DancingMoonlight"] = "b",
-        ["Darkness"] = "d",
+        ["RayDarkness"] = "d",
         ["DeepExploration"] = "d",
         ["Descend"] = "d",
         ["Dune"] = "d",

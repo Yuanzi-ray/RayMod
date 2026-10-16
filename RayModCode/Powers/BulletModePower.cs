@@ -56,8 +56,15 @@ namespace RayMod.Powers;
 /// 才通过 <see cref="ModifyXValue"/> 读出来的。要是直接读当前弹药，就会读到"已经扣完"的 0（X = 0，白打）。</item>
 /// <item><b>能量退回</b>：X 费牌的能量是被 <c>SpendResources</c> 强制扣掉的（<c>GetAmountToSpend()</c>
 /// 对 X 费返回"当前能量"，没有任何钩子能拦），所以在 <see cref="AfterEnergySpent"/> 里
-/// <b>原额退回</b> —— 这样"能量不是这个回合的货币"依然成立。</item>
+/// <b>原额退回</b> —— 这样"能量不是这个回合的货币"依然成立。
+/// </item>
 /// </list>
+///
+/// <para>★★ <b>2026-10-16 用户拍板</b>：<b>弹药为 0 时 X 费牌【必须能打出】</b>。
+/// 用户原话："严格意义上不算白打：因为可以触发如同装填模式这种牌" ——
+/// X=0 的 X 费牌仍带**非 X 依赖**的效果，一律否决等于把它们一起封死。
+/// 语义现在是：<b>X = 弹药数；弹药为 0 时 X = 0，但牌照常打出、能量照样退回</b>。
+/// （原 <see cref="ShouldPlay"/> 会直接否决，那是错的，已修。）</para>
 /// </summary>
 [RegisterPower]
 public sealed class BulletModePower : PowerModel, IModPowerAssetOverrides
@@ -293,16 +300,20 @@ public sealed class BulletModePower : PowerModel, IModPowerAssetOverrides
             return true;
         }
 
-        // X 费牌：X 就是弹药数，没弹药等于打 0 下 —— 与"买不起"同义，一并否决。
+        // ★★ 2026-10-16 修（玩家实机反馈："子弹为 0 时，会错误地阻止 X 费牌打出"）。
+        //
+        //   ★ 用户拍板：**X 费牌在弹药为 0 时也必须能打出**。原话的意思是
+        //   "严格意义上不算白打：因为可以触发如同装填模式这种牌" ——
+        //   即 X=0 的 X 费牌仍然携带**非 X 依赖的效果**（装填、抽牌、加格挡…），
+        //   一律否决掉等于把这些牌一起封死。
+        //
+        //   于是这里**不再按弹药否决 X 费牌**：让它照常打出，X 由 ModifyXValue 算成 0，
+        //   能量仍由 AfterEnergySpent 原额退回 ⇒ 玩家不亏能量，只是 X 的效果为 0。
+        //   ⚠️ 普通牌那一段（下面的 AmmoCostOf 判定）**保持否决**：它们的效果基本全靠弹药结算，
+        //      弹药不够本来就打不出来 —— 这一条没有改。
         if (card.EnergyCost.CostsX)
         {
-            if (AmmoCmd.GetAmmo(owner) > 0)
-            {
-                return true;
-            }
-
-            Log.Info($"[子弹模式] {card.Id.Entry} 是 X 费牌，但弹药为 0 → X 会是 0，打不出来");
-            return false;
+            return true;
         }
 
         int cost = AmmoCostOf(card);
@@ -353,7 +364,7 @@ public sealed class BulletModePower : PowerModel, IModPowerAssetOverrides
             _xCardInPlay = cardPlay.Card;
             _xValueInPlay = x;
 
-            AmmoCmd.ConsumeAmmo(owner, x);
+            AmmoCmd.ConsumeAmmo(owner, x, cardPlay.Card.Type == CardType.Attack);
 
             Log.Info($"[子弹模式] {cardPlay.Card.Id.Entry}：X = 弹药 {x}（已用弹药支付）");
 
@@ -369,7 +380,9 @@ public sealed class BulletModePower : PowerModel, IModPowerAssetOverrides
 
         if (cost > 0)
         {
-            AmmoCmd.ConsumeAmmo(owner, cost);
+            // ★ 2026-10-16：把"是不是攻击牌"传下去 —— 非攻击牌只响装填音，不响开火音
+            //   （玩家实机反馈："消耗子弹打出非攻击牌，也会播放子弹攻击的音效"）。
+            AmmoCmd.ConsumeAmmo(owner, cost, cardPlay.Card.Type == CardType.Attack);
         }
         else if (cardPlay.Card.EnergyCost.GetWithModifiers(CostModifiers.Local) > 0)
         {

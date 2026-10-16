@@ -106,7 +106,7 @@ public static class VoiceCatalog
         ["SniperScope"] = VoiceLine.BoltsReady,           // 狙击镜
         ["NoFire"] = VoiceLine.StayInDark,                // 禁止明火 ← 「我不想……留在黑暗之中。」
         ["EndlessDarkness"] = VoiceLine.StayInDark,       // 无尽黑暗
-        ["Darkness"] = VoiceLine.StayInDark,              // 黑暗之下
+        ["RayDarkness"] = VoiceLine.StayInDark,              // 黑暗之下
         ["Raise"] = VoiceLine.NewFood,                    // 饲养 ← 「…过来，试试新的饲料。」
         ["Feed"] = VoiceLine.NewFood,                     // 饲料
         ["Nurture"] = VoiceLine.NewFood,                  // 哺育

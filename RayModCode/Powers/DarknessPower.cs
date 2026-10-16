@@ -36,7 +36,7 @@ public sealed class DarknessPower : TemporaryStrengthPower, IModPowerAssetOverri
 
     public string? CustomBigIconPath => AssetProfile.BigIconPath;
 
-    public override AbstractModel OriginModel => ModelDb.Card<RayMod.Cards.Darkness>();
+    public override AbstractModel OriginModel => ModelDb.Card<RayMod.Cards.RayDarkness>();
 
     /// <summary>false = 这次是"失去力量"（基类会把符号取反、Type 设为 Debuff）。</summary>
     protected override bool IsPositive => false;

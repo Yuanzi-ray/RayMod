@@ -207,8 +207,10 @@ internal static class BulletAmmoCostHintPatch
         }
 
         // ── 判据 ③：这张牌**确实要花弹药** ──────────────────────────────────
-        // 0 费牌 / 弹药为空的 X 费牌 → false → 不追加（"消耗0点弹药"是纯噪音；
-        // ShouldPlay 对 cost<=0 直接放行，对空弹药的 X 费牌也直接否决）。
+        // 0 费牌 / 弹药为空的 X 费牌 → false → 不追加（"消耗0点弹药"是纯噪音）。
+        // ⚠️ 2026-10-16 订正：以前这句注释还写着"ShouldPlay 对空弹药的 X 费牌也直接否决" ——
+        //    **那个行为已经按用户要求改掉了**：弹药为 0 时 X 费牌**可以打出**（X=0）。
+        //    本判据不变（弹药 0 时不显示"消耗0点弹药"），只是它不再对应"打不出来"。
         // ⚠️ 绝不在这里自己算：公式的唯一出处是 BulletModePower.AmmoCostOf，
         //    X 费牌由 TryGetAmmoCost 走"当前弹药"那条（否则会显示 0，与实际"全扣"相反）。
         if (!power.TryGetAmmoCost(card, out int amount, out bool isX))

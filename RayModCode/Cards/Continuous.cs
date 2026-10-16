@@ -96,6 +96,16 @@ public sealed class Continuous : DepthGatedCard, IDepthCard
             return;
         }
 
+        // ★★ 2026-10-16 修的真 bug（玩家实机反馈）：**必须判"死的是不是敌人"**。
+        //    卡面写的是「若斩杀**敌人**」，而原来只判"目标死了" ⇒ 打死**爪牙/宠物**
+        //    （沙地兽这类 `IsPet` 单位、被召唤出来的小弟）也会白给一个遗物。
+        //    判据用 `Creature.IsEnemy`（= `Side == CombatSide.Enemy`，反编译确认）。
+        if (!target.IsEnemy)
+        {
+            Log.Info($"[源源不断] {target.Name} 不是敌人（IsEnemy=false）⇒ 不给遗物");
+            return;
+        }
+
         GrantKillRelic(target);
     }
 

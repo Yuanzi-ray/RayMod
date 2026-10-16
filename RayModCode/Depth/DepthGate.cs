@@ -45,11 +45,13 @@ public static class DepthGate
             return true;
         }
 
-        return GetWaiver(player) is { UsedThisTurn: false };
+        // ★ 2026-10-16：判据从"本回合用没用过"（bool）改成"还剩没用完"（读 Amount）。
+        //   「探井人」写的是"前 2 张"，用 bool 会永远只放行 1 张（玩家实机反馈的真 bug）。
+        return GetWaiver(player) is { HasWaiverLeft: true };
     }
 
     /// <summary>
-    /// 真正打出时调用：只有"条件本来不满足、靠豁免才进来的"才吃掉这一次豁免。
+    /// 真正打出时调用：只有"条件本来不满足、靠豁免才进来的"才消耗一次配额。
     /// </summary>
     /// <param name="conditionMet">这张牌自己的层数条件是否满足。</param>
     public static void MarkPlayed(Player? player, bool conditionMet)
@@ -59,7 +61,7 @@ public static class DepthGate
             return;
         }
 
-        if (GetWaiver(player) is { UsedThisTurn: false } waiver)
+        if (GetWaiver(player) is { HasWaiverLeft: true } waiver)
         {
             waiver.MarkUsed();
         }

@@ -21,7 +21,7 @@ namespace RayMod.Cards;
 /// 结算后为 0），所以**不要**假设它一定生效，后续逻辑别依赖返回值。</para>
 /// </summary>
 [RegisterCard(typeof(RayModCardPool))]
-public sealed class Darkness : ModCardTemplate, IDepthCard
+public sealed class RayDarkness : ModCardTemplate, IDepthCard
 {
     private const int BaseEnergyCost = 1;
     private const CardType CardKind = CardType.Skill;
@@ -44,7 +44,7 @@ public sealed class Darkness : ModCardTemplate, IDepthCard
         new DynamicVar("ExtraStrengthLoss", 3m)
     ];
 
-    public Darkness() : base(BaseEnergyCost, CardKind, CardRarityValue, CardTarget, ShowInCardLibrary)
+    public RayDarkness() : base(BaseEnergyCost, CardKind, CardRarityValue, CardTarget, ShowInCardLibrary)
     {
     }
 
