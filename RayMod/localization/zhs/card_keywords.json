@@ -1,0 +1,10 @@
+{
+  "RAY_KW_DEPTH.title": "深度",
+  "RAY_KW_DEPTH.description": "战斗内的深度资源，每场战斗归零。越高越强，但超过50就无法召唤沙地兽。",
+  "RAY_KW_AMMO.title": "弹药",
+  "RAY_KW_AMMO.description": "战斗内资源，上限{AmmoCap}。由相关牌消耗或补充，弹药越多有些牌打得越重。",
+  "RAY_KW_BEAST.title": "沙地兽",
+  "RAY_KW_BEAST.description": "召唤物，最多2只。给一名敌人挂印记，每层让它多受10%攻击伤害。",
+  "RAY_KW_BULLET_AMMO_COST.description": "消耗[blue]{Amount}[/blue]点弹药。",
+  "RAY_KW_BULLET_AMMO_COST_X.description": "消耗全部弹药（当前[blue]{Amount}[/blue]）。"
+}

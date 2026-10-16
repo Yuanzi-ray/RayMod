@@ -1,0 +1,41 @@
+[gd_scene load_steps=4 format=3 uid="uid://cx35j82gmbel1"]
+
+[ext_resource type="SpineAtlasResource" uid="uid://bvtgkpxhhbflu" path="res://RayMod/spine/skins/summer/char_4117_ray_summer.atlas" id="1_jabu1"]
+[ext_resource type="SpineSkeletonFileResource" uid="uid://bbd4d8jirmj61" path="res://RayMod/spine/skins/summer/char_4117_ray_summer.skel" id="2_hymhc"]
+
+[sub_resource type="SpineSkeletonDataResource" id="SpineSkeletonDataResource_jabu1"]
+atlas_res = ExtResource("1_jabu1")
+skeleton_file_res = ExtResource("2_hymhc")
+
+[node name="RayModCharacter" type="Node2D"]
+
+[node name="Visuals" type="SpineSprite" parent="."]
+unique_name_in_owner = true
+position = Vector2(1.0000019, -5)
+scale = Vector2(0.67802477, 0.6780248)
+skeleton_data_res = SubResource("SpineSkeletonDataResource_jabu1")
+preview_skin = "Default"
+preview_animation = "Die"
+preview_frame = false
+preview_time = 0.0
+
+[node name="Bounds" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = -142.0
+offset_top = -362.0
+offset_right = 140.0
+offset_bottom = 30.048767
+
+[node name="IntentPos" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(24, -224)
+
+[node name="CenterPos" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -96)
+
+[node name="TalkPos" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -184)

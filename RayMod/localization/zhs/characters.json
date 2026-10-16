@@ -1,0 +1,21 @@
+{
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.aromaPrinciple": "[sine][blue]如果眼前不再只有一小片天空，人们就不想追逐日月了吗？[/blue][/sine]",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.banter.alive.endTurnPing": "视野很好，能看到的不止是危险。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.banter.dead.endTurnPing": "你们快走。通讯有可能中断，如果情况严峻，我会尽力留下可识别的标记。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.cardsModifierDescription": "莱伊的卡牌现在会出现在奖励和商店中。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.cardsModifierTitle": "莱伊卡牌",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.defeatMessage": "后续开采......医疗工作先推迟一下，我去处理潜在威胁。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.description": "来自雷姆必拓的探井人，沉默寡言的猎手。\n在矿井深处追寻光芒，在罗德岛寻找新的目标。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.eventDeathPrevention": "我不想......留在黑暗之中。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.flavor": "她从矿井里被拉上来，她走了很远，她还在追寻。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.goldMonologue": "这些金币，应该够买沙地兽的新饲料了。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.possessiveAdjective": "她的",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounObject": "她",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounPossessive": "她的",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounSubject": "她",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.selectMessage": "我通过干员测试了，博士，谢谢你们的邀请。那趟追寻之旅结束了，但我想在这艘船上找到新的目标。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.title": "莱伊",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.titleObject": "莱伊",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.unlockText": "用[pink]{Prerequisite}[/pink]进行一局游戏来解锁这个角色。",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.victoryMessage": "......太阳出来了。真漂亮。沙地兽，我们回去吧。"
+}

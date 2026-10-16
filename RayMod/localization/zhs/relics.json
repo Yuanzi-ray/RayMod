@@ -1,0 +1,18 @@
+{
+  "RAY_MOD_RELIC_MINE_RELIC.title": "下矿",
+  "RAY_MOD_RELIC_MINE_RELIC.description": "每回合开始时，[gold]深度[/gold]+4。\n深度越高越强，但超过50就无法召唤沙地兽。\n每次进入20-29层时获得一瓶药水。",
+  "RAY_MOD_RELIC_MINE_RELIC.smartDescription": "每回合开始时，[gold]深度[/gold]+4。\n深度越高越强，但超过50就无法召唤沙地兽。\n每次进入20-29层时获得一瓶药水。",
+  "RAY_MOD_RELIC_MINE_RELIC.flavor": "越往下走，越难回头。",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.title": "深矿",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.description": "每回合开始时，[gold]深度[/gold]+4；每回合多抽1张牌。\n每次进入20-29层时获得一瓶药水。",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.smartDescription": "每回合开始时，[gold]深度[/gold]+4；每回合多抽1张牌。\n每次进入20-29层时获得一瓶药水。",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.flavor": "再往下，是连光都到不了的地方。",
+  "RAY_MOD_RELIC_BEAST_COMPANION.title": "伙伴",
+  "RAY_MOD_RELIC_BEAST_COMPANION.description": "战斗开始时，召唤[blue]{Summon}[/blue]只[gold]沙地兽[/gold]。",
+  "RAY_MOD_RELIC_BEAST_COMPANION.smartDescription": "战斗开始时，召唤[blue]{Summon}[/blue]只[gold]沙地兽[/gold]。",
+  "RAY_MOD_RELIC_BEAST_COMPANION.flavor": "她从没给它起过名字，但它每次都来。",
+  "RAY_MOD_RELIC_CROSSBOW.title": "弩",
+  "RAY_MOD_RELIC_CROSSBOW.description": "[blue]弹药上限[/blue]永久+{CapBonus}。",
+  "RAY_MOD_RELIC_CROSSBOW.smartDescription": "[blue]弹药上限[/blue]永久+{CapBonus}。",
+  "RAY_MOD_RELIC_CROSSBOW.flavor": "装填的余量，就是活下去的余量。"
+}

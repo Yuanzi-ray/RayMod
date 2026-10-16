@@ -1,0 +1,18 @@
+{
+  "RAY_MOD_RELIC_MINE_RELIC.title": "Descend the Mine",
+  "RAY_MOD_RELIC_MINE_RELIC.description": "At the start of each turn, gain [blue]4[/blue] [gold]Depth[/gold].\nHigher Depth is stronger, but above 50 you can no longer summon Sand Beasts.\nEach time you enter Depth 20-29, gain a potion.",
+  "RAY_MOD_RELIC_MINE_RELIC.smartDescription": "At the start of each turn, gain [blue]4[/blue] [gold]Depth[/gold].\nHigher Depth is stronger, but above 50 you can no longer summon Sand Beasts.\nEach time you enter Depth 20-29, gain a potion.",
+  "RAY_MOD_RELIC_MINE_RELIC.flavor": "The deeper you go, the harder it is to turn back.",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.title": "Deep Mine",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.description": "At the start of each turn, gain [blue]4[/blue] [gold]Depth[/gold] and draw [blue]1[/blue] additional card.\nEach time you enter Depth 20-29, gain a potion.",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.smartDescription": "At the start of each turn, gain [blue]4[/blue] [gold]Depth[/gold] and draw [blue]1[/blue] additional card.\nEach time you enter Depth 20-29, gain a potion.",
+  "RAY_MOD_RELIC_DEEP_MINE_RELIC.flavor": "Go deeper still, to where even light cannot reach.",
+  "RAY_MOD_RELIC_BEAST_COMPANION.title": "Companion",
+  "RAY_MOD_RELIC_BEAST_COMPANION.description": "At the start of each combat, summon [blue]{Summon}[/blue] [gold]Sand Beasts[/gold].",
+  "RAY_MOD_RELIC_BEAST_COMPANION.smartDescription": "At the start of each combat, summon [blue]{Summon}[/blue] [gold]Sand Beasts[/gold].",
+  "RAY_MOD_RELIC_BEAST_COMPANION.flavor": "She never gave it a name. It comes anyway.",
+  "RAY_MOD_RELIC_CROSSBOW.title": "Crossbow",
+  "RAY_MOD_RELIC_CROSSBOW.description": "[blue]Ammo capacity[/blue] is permanently increased by {CapBonus}.",
+  "RAY_MOD_RELIC_CROSSBOW.smartDescription": "[blue]Ammo capacity[/blue] is permanently increased by {CapBonus}.",
+  "RAY_MOD_RELIC_CROSSBOW.flavor": "Spare capacity is spare life."
+}

@@ -1,0 +1,10 @@
+{
+  "RAY_KW_DEPTH.title": "Depth",
+  "RAY_KW_DEPTH.description": "A resource that builds up during a combat and resets each fight. Higher is stronger, but above 50 you can no longer summon Sand Beasts.",
+  "RAY_KW_AMMO.title": "Ammo",
+  "RAY_KW_AMMO.description": "A per-combat resource, maximum {AmmoCap}. Spent or refilled by related cards; more Ammo makes some cards hit harder.",
+  "RAY_KW_BEAST.title": "Sand Beast",
+  "RAY_KW_BEAST.description": "A summon, up to 2 at a time. It marks an enemy; each mark makes that enemy take 10% more attack damage.",
+  "RAY_KW_BULLET_AMMO_COST.description": "Spend [blue]{Amount}[/blue] Ammo.",
+  "RAY_KW_BULLET_AMMO_COST_X.description": "Spend all Ammo (currently [blue]{Amount}[/blue])."
+}

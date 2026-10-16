@@ -1,0 +1,181 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+    <Import Project=".\local.props" Condition="Exists('.\local.props')" />
+
+    <PropertyGroup>
+        <!-- 配了 GodotExe 就默认导出 pck，否则跳过。
+             注意：这里必须只设"默认值"，不能无条件写死 —— 写死了会让下面的
+             CopyMod/ExportPCK 逻辑失去意义（本地化 JSON 是通过 pck 分发的，
+             不重新导出 pck，新增的翻译键在游戏里就是缺失的）。 -->
+        <RunPckExport Condition="'$(RunPckExport)' == '' and '$(GodotExe)' != '' and Exists('$(GodotExe)')">true</RunPckExport>
+        <RunPckExport Condition="'$(RunPckExport)' == ''">false</RunPckExport>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <RootNamespace>RayMod</RootNamespace>
+        <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+        <PathMap>$(AppOutputBase)=.\</PathMap>
+        <NoWarn>$(NoWarn);MSB3270;CS0436</NoWarn>
+
+        <GodotExportPreset>Windows Desktop</GodotExportPreset>
+        <Sts2Dir Condition="'$(Sts2Dir)' == ''">$(MSBuildProgramFiles32)\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
+        <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
+        <ModOutputDir>$(Sts2Dir)\mods\$(MSBuildProjectName)\</ModOutputDir>
+        <ModPckPath>$(ModOutputDir)$(MSBuildProjectName).pck</ModPckPath>
+        <!-- 本机测试时 RitsuLib 包/构建逻辑会使用这个目录把 RitsuLib 部署到游戏 mods/STS2-RitsuLib。 -->
+        <!-- Local test builds use this directory when RitsuLib package/build logic deploys RitsuLib to game mods/STS2-RitsuLib. -->
+        <RitsuLibDeployDir Condition="'$(RitsuLibDeployDir)' == ''">$(Sts2Dir)\mods\STS2-RitsuLib</RitsuLibDeployDir>
+        <!-- 目标游戏版本，决定用哪个 RitsuLib 包（两者命名空间相同，只是 compat 运行时不同）：
+             0.110.0 → STS2.RitsuLib.Compat.0.110.0：面向游戏 0.110.x（本机开发副本 0.110.1 用这个，默认）
+             0.111.0 → STS2.RitsuLib：面向游戏 0.111.0（主线包）
+             用法：dotnet build /p:RitsuLibTargetVersion=0.111.0 ...
+             ⚠️ 切换会按包的 compat-target.txt 重写 $(RitsuLibDeployDir)\compat\ 整个目录，
+                所以给 0.111.0 出包时必须同时把 RitsuLibDeployDir 指到临时目录，
+                否则会把本机 0.110.1 游戏里的 RitsuLib 换成 0.111.0 版。 -->
+        <RitsuLibTargetVersion Condition="'$(RitsuLibTargetVersion)' == ''">0.110.0</RitsuLibTargetVersion>
+        <CopyModOnBuild Condition="'$(CopyModOnBuild)' == ''">true</CopyModOnBuild>
+        <RunPckExport Condition="'$(RunPckExport)' == '' and '$(DesignTimeBuild)' != 'true'">true</RunPckExport>
+        <RunPckExport Condition="'$(RunPckExport)' == ''">false</RunPckExport>
+        <!-- ★★ 2026-10-15「我们自己的事件」总开关。**默认 false = 事件不进程序集 = 彻底禁用**
+             （用户要求："先禁用我们自己加的事件"）。改成 true 即可恢复，详见下面 ItemGroup 的说明。 -->
+        <IncludeAbandonedMineEvent Condition="'$(IncludeAbandonedMineEvent)' == ''">false</IncludeAbandonedMineEvent>
+        <!-- 开关为 true 时同时定义符号，让 AbandonedMine.cs 里的 `#if RAYMOD_ABANDONED_MINE_EVENT` 守卫放行
+             （两道锁必须同源：文件被排除时符号也不能定义，否则会出现"文件被编译但类被 #if 挡掉"的空文件）。 -->
+        <DefineConstants Condition="'$(IncludeAbandonedMineEvent)' == 'true'">$(DefineConstants);RAYMOD_ABANDONED_MINE_EVENT</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+
+    <ItemGroup>
+        <PackageReference Include="FuYnAloft.Sts2.MinionLib" Version="0.6.3" />
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1" PrivateAssets="all" />
+        <PackageReference Include="Nothing.STS2RitsuLib.ModAnalyzers" Version="*" PrivateAssets="all" />
+        <!-- RitsuLib 升级：0.4.53（min_game_version 0.108.0）→ 0.6.5 → **0.6.7**（2026-10-15 发布前）。
+             ⚠️ 0.6.7 不是随手挑的：用户的创意工坊版 RitsuLib 就是 0.6.7，而
+             SyncManifestDependencies 会把 NuGet 版本写进 RayMod.json ⇒ **包版本必须 = 工坊版本**，
+             否则每构建一次就把清单改回旧号。索引里 0.6.0~0.6.7 都有（含 compat 变体）。
+             按 $(RitsuLibTargetVersion) 二选一，两者命名空间完全相同，代码不用改：
+               · STS2.RitsuLib.Compat.0.110.0 → compat-target.txt = 0.110.0（游戏 0.110.x）
+               · STS2.RitsuLib                → compat-target.txt = 0.111.0（游戏 0.111.0）
+             注意：Compat 包的 MSBuild 属性名是 PkgSTS2_RitsuLib_Compat_0_110_0，
+             所以下面的 SyncManifestDependencies 只会在用主线包（PkgSTS2_RitsuLib）时才跑。 -->
+        <PackageReference Include="STS2.RitsuLib.Compat.0.110.0" Version="0.6.7" GeneratePathProperty="true"
+                          Condition="'$(RitsuLibTargetVersion)' != '0.111.0'" />
+        <PackageReference Include="STS2.RitsuLib" Version="0.6.7" GeneratePathProperty="true"
+                          Condition="'$(RitsuLibTargetVersion)' == '0.111.0'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Publicize Include="sts2" IncludeVirtualMembers="false" IncludeCompilerGeneratedMembers="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" HintPath="$(Sts2DataDir)\0Harmony.dll" Private="True" />
+        <Reference Include="sts2" HintPath="$(Sts2DataDir)\sts2.dll" Private="True" />
+        <Reference Include="Steamworks.NET" HintPath="$(Sts2DataDir)\Steamworks.NET.dll" Private="True" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- ★★ 2026-10-15 用户要求：「先禁用我们自己加的事件」（创意工坊发布前）。
+             开关 = `IncludeAbandonedMineEvent`（在文件顶部的主 PropertyGroup 里，**默认 false**）。
+             ⚠️ 为什么不能"只把 [RegisterSharedEvent] 注释掉"：**实测无效** ——
+                摘掉 attribute 之后事件照样被注册，只是 Id 从 RAY_MOD_EVENT_ABANDONED_MINE
+                变成了 ABANDONED_MINE（游戏日志实证，2026-10-15 20:28），说明 RitsuLib 还有
+                一条**不靠这个 attribute** 的注册路径（ModEventTemplate 子类的兜底注册）。
+                ⇒ 唯一可靠的办法是**让这个类型根本不进程序集**：把 .cs 从编译里排除。
+             恢复办法：把顶部的 false 改成 true（或命令行 /p:IncludeAbandonedMineEvent=true）。
+             ⚠️ 恢复后要【新开一局】才会重新遇到它（事件池是跑团生成时定下来的）。
+        -->
+        <Compile Remove="RayModCode/Events/AbandonedMine.cs" Condition="'$(IncludeAbandonedMineEvent)' != 'true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- 中文：排除 Godot、IDE 和构建输出目录，避免本地生成文件参与编译。 -->
+        <!-- English: Exclude Godot, IDE, and build output directories so local generated files are not compiled. -->
+        <Compile Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**" />
+        <EmbeddedResource Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**" />
+        <None Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**" />
+
+        <AdditionalFiles Include="RayMod/localization/**/*.json" />
+
+        <Compile Remove="RayMod/**" />
+        <EmbeddedResource Remove="RayMod/**" />
+        <None Include="RayMod/**" />
+        <None Include="local.props" />
+        <None Include="RayMod.json" />
+        <None Include="project.godot" />
+        <None Include="export_presets.cfg" />
+        <None Include=".gitignore" />
+        <None Include="local.props.template" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="local.props" Condition="Exists('local.props')" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="RayMod\images\cards\" />
+        <Folder Include="RayMod\images\characters\" />
+        <Folder Include="RayMod\images\relics\" />
+        <Folder Include="RayMod\scenes\characters\" />
+    </ItemGroup>
+
+    <Target Name="ValidateSts2GameInstall" BeforeTargets="ResolveAssemblyReferences">
+        <Error Condition="!Exists('$(Sts2DataDir)\sts2.dll')" Text="Could not find sts2.dll under '$(Sts2DataDir)'. Copy local.props.template to local.props and set Sts2Dir/Sts2DataDir for your local game install." />
+    </Target>
+
+    <Target Name="CopyMod" AfterTargets="Build" Condition="'$(CopyModOnBuild)' != 'false'">
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MSBuildProjectName).json" DestinationFolder="$(ModOutputDir)" />
+    </Target>
+
+    <Target Name="ExportPCK" AfterTargets="Build" Condition="'$(RunPckExport)' == 'true' and '$(STS2_SKIP_PCK_EXPORT)' != '1'">
+        <Error Condition="'$(GodotExe)' == '' or !Exists('$(GodotExe)')" Text="GodotExe is required for PCK export. Copy local.props.template to local.props and set GodotExe, or build with /p:RunPckExport=false." />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <!-- ContinueOnError 是必须的，不是偷懒：
+             Godot 以 headless 模式退出时会往 stderr 打一堆
+             "Attempt to unregister unexisting extension class 'Spine*'" 的清理噪音，
+             而 MSBuild 只要看到 stderr 里有 error: 就把这次 Exec 判为失败（MSB3077），
+             即使 Godot 实际退出码是 0、pck 也已经正常写出。
+             代价是导出真失败时只会得到警告而不是报错，所以判断导出是否成功，
+             请看 mods/<Mod>/<Mod>.pck 的时间戳，而不是看构建结论。 -->
+        <Exec WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" Command="&quot;$(GodotExe)&quot; --headless --path &quot;$(MSBuildProjectDirectory)&quot; --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(ModPckPath)&quot;" EnvironmentVariables="STS2_SKIP_PCK_EXPORT=1" />
+    </Target>
+
+    <Target Name="SyncManifestDependencies" AfterTargets="Build" BeforeTargets="CopyMod" Condition="'$(DesignTimeBuild)' != 'true' and '$(PkgSTS2_RitsuLib)' != ''">
+        <!-- ★ 2026-10-15 修了两个键名 bug：
+             ① 这里以前读写 dependencies[].**version**，但**游戏运行时的字段名是 `min_version`**
+                （`ModDependency.cs` → `[JsonPropertyName("min_version")] public string? minVersion`，
+                反编译 0.111 实证）⇒ 旧写法写出的清单**根本没被游戏读到**，依赖从来不校验。
+             ② RitsuLib 自己的 README 也只用 `{ "id": "STS2-RitsuLib" }`（不带版本键）。
+             所以统一成 `min_version`，与游戏一致。 -->
+        <PropertyGroup>
+            <RitsuLibVersion>$([System.IO.Path]::GetFileName('$(PkgSTS2_RitsuLib)'))</RitsuLibVersion>
+            <ManifestFile>$(MSBuildProjectDirectory)\$(MSBuildProjectName).json</ManifestFile>
+        </PropertyGroup>
+        <PropertyGroup>
+            <_Json>$([System.IO.File]::ReadAllText('$(ManifestFile)'))</_Json>
+            <_VersionSearchPattern>(?s)"id"\s*:\s*"STS2-RitsuLib".*?"min_version"\s*:\s*"([^"]+)"</_VersionSearchPattern>
+            <_VersionExtractPattern>(?s).*?"id"\s*:\s*"STS2-RitsuLib".*?"min_version"\s*:\s*"([^"]+)".*</_VersionExtractPattern>
+            <_HasRitsuLibVersion>$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Json)', '$(_VersionSearchPattern)'))</_HasRitsuLibVersion>
+            <_CurrentRitsuLibVersion Condition="'$(_HasRitsuLibVersion)' == 'True'">$([System.Text.RegularExpressions.Regex]::Replace('$(_Json)', '$(_VersionExtractPattern)', '$1'))</_CurrentRitsuLibVersion>
+            <_ManifestNeedsUpdate>false</_ManifestNeedsUpdate>
+            <_ManifestNeedsUpdate Condition="'$(_CurrentRitsuLibVersion)' != '' and '$(_CurrentRitsuLibVersion)' != '$(RitsuLibVersion)'">true</_ManifestNeedsUpdate>
+        </PropertyGroup>
+        <Error Condition="'$(_HasRitsuLibVersion)' != 'True'" Text="Could not find dependencies[STS2-RitsuLib].min_version in '$(ManifestFile)'." />
+        <Message Importance="High" Condition="'$(_ManifestNeedsUpdate)' == 'true'" Text="Sync STS2-RitsuLib manifest dependency: $(_CurrentRitsuLibVersion) -&gt; $(RitsuLibVersion)" />
+        <Message Importance="Low" Condition="'$(_ManifestNeedsUpdate)' != 'true'" Text="STS2-RitsuLib manifest dependency already matches $(RitsuLibVersion)." />
+        <PropertyGroup Condition="'$(_ManifestNeedsUpdate)' == 'true'">
+            <_Pattern>(?s)("STS2-RitsuLib".*?"min_version"\s*:\s*")[^"]+(")</_Pattern>
+            <_Replacement>${1}$(RitsuLibVersion)${2}</_Replacement>
+            <_Updated>$([System.Text.RegularExpressions.Regex]::Replace('$(_Json)', '$(_Pattern)', '$(_Replacement)'))</_Updated>
+        </PropertyGroup>
+        <ItemGroup Condition="'$(_ManifestNeedsUpdate)' == 'true'">
+            <_Lines Include="$([System.Text.RegularExpressions.Regex]::Split('$(_Updated)', '\\r?\\n'))" />
+        </ItemGroup>
+        <WriteLinesToFile Condition="'$(_ManifestNeedsUpdate)' == 'true'" File="$(ManifestFile)" Lines="@(_Lines)" Overwrite="true" />
+    </Target>
+</Project>

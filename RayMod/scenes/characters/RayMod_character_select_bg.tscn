@@ -1,0 +1,88 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Texture2D" path="res://RayMod/images/characters/RayMod_character_art.png" id="1_character"]
+[ext_resource type="Texture2D" path="res://RayMod/images/characters/RayMod_character_icon.png" id="2_icon"]
+[ext_resource type="Script" path="res://RayModCode/UI/CharacterSelectSkinPicker.cs" id="3_skinpicker"]
+[ext_resource type="SpineSkeletonDataResource" path="res://RayMod/spine/skins/summer/char_4117_ray_summer_data.tres" id="4_previewdata"]
+[ext_resource type="SpineSkeletonDataResource" path="res://RayMod/spine/skins/shining/char_4117_ray_shining_data.tres" id="5_previewshining"]
+[ext_resource type="SpineSkeletonDataResource" path="res://RayMod/spine/skins/original/char_4117_ray_data.tres" id="6_previeworiginal"]
+[ext_resource type="Script" path="res://RayModCode/UI/SkinPreviewSprite.gd" id="7_previewscript"]
+
+[node name="RayModCharacterSelectBg" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.16, 0.14, 0.13, 1)
+
+[node name="Character" type="TextureRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 388.0
+offset_top = 80.0
+offset_right = -252.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_character")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon" type="TextureRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 120.0
+offset_right = 288.0
+offset_bottom = 288.0
+texture = ExtResource("2_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SkinPicker" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_skinpicker")
+
+[node name="PreviewSlot0" type="Node2D" parent="SkinPicker"]
+
+[node name="Sprite" type="SpineSprite" parent="SkinPicker/PreviewSlot0"]
+script = ExtResource("7_previewscript")
+skeleton_data_res = ExtResource("4_previewdata")
+
+[node name="PreviewSlot1" type="Node2D" parent="SkinPicker"]
+
+[node name="Sprite" type="SpineSprite" parent="SkinPicker/PreviewSlot1"]
+script = ExtResource("7_previewscript")
+skeleton_data_res = ExtResource("5_previewshining")
+
+[node name="PreviewSlot2" type="Node2D" parent="SkinPicker"]
+
+[node name="Sprite" type="SpineSprite" parent="SkinPicker/PreviewSlot2"]
+script = ExtResource("7_previewscript")
+skeleton_data_res = ExtResource("6_previeworiginal")

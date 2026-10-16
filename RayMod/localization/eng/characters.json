@@ -1,0 +1,21 @@
+{
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.aromaPrinciple": "[sine][blue]If the sky ahead were no longer just a small patch, would people stop chasing the sun and the moon?[/blue][/sine]",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.banter.alive.endTurnPing": "Turn complete.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.banter.dead.endTurnPing": "I am out for now.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.cardsModifierDescription": "Ray's cards can now appear in rewards and shops.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.cardsModifierTitle": "Ray Cards",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.defeatMessage": "Further excavation can wait... hold the medical work for now. I'll go deal with the threat.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.description": "A well-digger from Rim Billiton, a hunter of few words.\nShe seeks light in the depths of the mines, and a new purpose aboard Rhodes Island.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.eventDeathPrevention": "I don't want to... stay in the dark.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.flavor": "She was pulled up out of the mine, she has come a long way, and she is still searching.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.goldMonologue": "This gold is enough to start testing.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.possessiveAdjective": "their",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounObject": "them",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounPossessive": "theirs",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.pronounSubject": "they",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.selectMessage": "I passed the Operator test, Doctor. Thank you for the invitation. That journey of searching is over, but I want to find a new purpose aboard this ship.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.title": "Ray",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.titleObject": "Ray",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.unlockText": "Complete a run as [pink]{Prerequisite}[/pink] to unlock this character.",
+  "RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.victoryMessage": "...The sun is out. It's beautiful. Sand Beast, let's go home."
+}

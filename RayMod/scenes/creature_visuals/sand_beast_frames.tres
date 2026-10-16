@@ -1,0 +1,130 @@
+[gd_resource type="SpriteFrames" load_steps=31 format=3]
+
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_00.png" id="1_22v8h"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_01.png" id="2_ntomo"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_02.png" id="3_2n61s"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_03.png" id="4_ry54p"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_04.png" id="5_1sqba"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_05.png" id="6_1bst0"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_06.png" id="7_l76q7"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_07.png" id="8_sol1f"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_08.png" id="9_ei86g"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_09.png" id="10_01tqn"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_10.png" id="11_rb87e"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_11.png" id="12_w05w2"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_12.png" id="13_hv8s1"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_13.png" id="14_3ol01"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_14.png" id="15_w2oa3"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_15.png" id="16_36wbh"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_16.png" id="17_655uy"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_17.png" id="18_kfnb6"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_18.png" id="19_f7th8"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_19.png" id="20_chi5t"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_20.png" id="21_hch4f"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_21.png" id="22_6wb4f"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_22.png" id="23_msiwr"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_23.png" id="24_8scog"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_24.png" id="25_87sy4"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_25.png" id="26_fkn7g"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_26.png" id="27_4b26t"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_27.png" id="28_a8lll"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_28.png" id="29_d8ru4"]
+[ext_resource type="Texture2D" path="res://RayMod/images/monsters/sand_beast/sand_beast_29.png" id="30_2kebg"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_22v8h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_ntomo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_2n61s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_ry54p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_1sqba")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_1bst0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_l76q7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_sol1f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_ei86g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_01tqn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_rb87e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_w05w2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_hv8s1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_3ol01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_w2oa3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_36wbh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_655uy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_kfnb6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_f7th8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_chi5t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_hch4f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_6wb4f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_msiwr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_8scog")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_87sy4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_fkn7g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_4b26t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_a8lll")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_d8ru4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_2kebg")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 30.0
+}]

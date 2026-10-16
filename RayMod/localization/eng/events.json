@@ -1,0 +1,11 @@
+{
+  "RAY_MOD_EVENT_ABANDONED_MINE.title": "Abandoned Mine",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.description": "The winch is still turning, its cable hanging into darkness.\n\nThe ventilation pipe snapped long ago, yet the footprints around the collar are fresh. Someone is still working this shaft.\n\nA pitsinker's rule: send the sand beast down first.",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.SCOUT.title": "Send the Sand Beast",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.SCOUT.description": "Send it down first. Gain [blue]{Gold}[/blue] [gold]Gold[/gold].",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.DESCEND.title": "Rope Down Yourself",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.DESCEND.description": "Rope down yourself. Take [red]{Damage}[/red] damage, but the deep vein is untouched. Gain [blue]{MineGold}[/blue] [gold]Gold[/gold].",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.SCOUT.description": "It slides down the cable, stops at thirty meters, and calls back up at you.\n\nWhen it climbs out, it is carrying a chunk of raw ore—far too pure for an abandoned shaft.\n\nGain [blue]{Gold}[/blue] [gold]Gold[/gold].",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.DESCEND.description": "Two meters above the bottom, the supports give way.\n\nRubble pins you into the drift, and it takes a while to dig yourself out.\n\nBut the trip was not wasted: the deepest vein is still there, untouched.\n\nGain [blue]{MineGold}[/blue] [gold]Gold[/gold].",
+  "RAY_MOD_EVENT_ABANDONED_MINE.loss": "{character} died in the [gold]{event}[/gold]."
+}

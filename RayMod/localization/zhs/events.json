@@ -1,0 +1,11 @@
+{
+  "RAY_MOD_EVENT_ABANDONED_MINE.title": "废弃矿井",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.description": "绞车还在空转，钢缆垂进看不见底的黑暗里。\n\n通风管早就断了，井口那圈脚印却很新——还有人在这下面做事。\n\n按探井人的规矩：先放沙地兽下去。",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.SCOUT.title": "放沙地兽下去",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.SCOUT.description": "让它先下去。获得[blue]{Gold}[/blue][gold]金币[/gold]。",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.DESCEND.title": "自己系绳下井",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.INITIAL.options.DESCEND.description": "系绳下去。受到[red]{Damage}[/red]点伤害，但深处的矿脉还在。获得[blue]{MineGold}[/blue][gold]金币[/gold]。",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.SCOUT.description": "它顺着钢缆滑下去，在三十米深处停住，抬头叫了一声。\n\n上来时它嘴里叼着一小块源石——成色好得不像一口废井。\n\n获得[blue]{Gold}[/blue][gold]金币[/gold]。",
+  "RAY_MOD_EVENT_ABANDONED_MINE.pages.DESCEND.description": "离井底还有两米，支架断了。\n\n碎石把你压进巷道，你花了一阵子才把自己挖出来。\n\n但你没白下去：最深处那条矿脉还在，没有被任何人动过。\n\n获得[blue]{MineGold}[/blue][gold]金币[/gold]。",
+  "RAY_MOD_EVENT_ABANDONED_MINE.loss": "{character}死在[gold]{event}[/gold]里。"
+}
