@@ -70,6 +70,25 @@ public static class RayModVfxSettings
                             (Func<bool>?)null);
                     });
 
+                    page.AddSection("music", section =>
+                    {
+                        section.WithTitle(ModSettingsText.Literal("主题曲"));
+                        section.WithDescription(ModSettingsText.Literal(
+                            "游玩莱伊时循环播放的主题曲（默认开）。" +
+                            "曲子来自 `audio/music/raymod_theme.mp3`，音量刻意压在游戏原 BGM 下面。"));
+
+                        section.AddToggle(
+                            "music",
+                            ModSettingsText.Literal("播放主题曲"),
+                            ModSettingsBindings.Callback<bool>(
+                                Entry.ModId, "music",
+                                () => VoiceState.MusicEnabled,
+                                value => VoiceState.MusicEnabled = value,
+                                VoiceState.Save, SaveScope.Profile),
+                            ModSettingsText.Literal("开 = 循环播放；关 = 立刻停（下一帧生效，不用重启）。"),
+                            (Func<bool>?)null);
+                    });
+
                     page.AddSection("vfx_parts", section =>
                     {
                         section.WithTitle(ModSettingsText.Literal("分类"));

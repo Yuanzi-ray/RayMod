@@ -4,5 +4,11 @@
   "NEOW.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "[sine]Go... build your character from this template...[/sine]",
   "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.char": "This place is still empty.",
   "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.next": "Continue",
-  "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "Empty is useful! Take something and fill it in!"
+  "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "Empty is useful! Take something and fill it in!",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.char": "I have dug deeper than this. This is still shallow.",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.next": "Continue",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "[sine]...Then you know it only gets darker from here.[/sine]",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-0r.char": "The sun is not at the top. It is on the way out.",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-1r.ancient": "[sine]Then walk it again. I will be watching.[/sine]",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-0r.next": "Continue"
 }

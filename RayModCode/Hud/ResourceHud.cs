@@ -85,6 +85,28 @@ internal static class ResourceHud
     private static MethodInfo? _getMeMethod;
     private static bool _getMeLookupDone;
 
+    /// <summary>
+    /// 取<b>本地玩家对象本体</b>（<c>Player</c>，反射拿不到时返回 null）。
+    /// <para>★ 2026-10-20：给 <c>Art\CardFieldVfx.Persist.cs</c> 的常驻心跳用 ——
+    /// 心跳必须每 0.5 秒重新问一次"现在这个玩家是谁"，
+    /// 因为 SL 之后游戏给的是<b>另一个 Player 实例</b>，缓存的旧引用会静默失效。</para>
+    /// <para>⚠️ 这里是**唯一**取本地玩家的入口（<see cref="LocalPlayerIsRay"/> 内部也走它）：
+    /// `LocalContext.GetMe` 的 6 个同名重载已经在文档里记过一次坑，别在别处再抄一份。</para>
+    /// </summary>
+    internal static object? LocalPlayerOrNull()
+    {
+        try
+        {
+            object? state = RunStateOf();
+
+            return state == null ? null : GetMe(state);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static bool LocalPlayerIsRay()
     {
         try

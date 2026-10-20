@@ -88,7 +88,7 @@ public sealed class Cannon : ModCardTemplate, IAmmoCard
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
             .FromCard(this, cardPlay)
             .Targeting(cardPlay.Target)
-            .WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+            .WithHitFx("vfx/vfx_starry_impact")   // 枪械卡：点状命中（原来是 blunt 闷响）
             .Execute(choiceContext);
     }
 

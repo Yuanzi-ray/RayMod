@@ -53,28 +53,59 @@ public sealed class CaliberEnlargement : ModCardTemplate, IAmmoCard
     ];
 
     /// <summary>
-    /// 数"与弹药有关的牌"：<b>本场战斗里你手上的全部牌</b>（抽牌堆 + 手牌 + 弃牌堆 + 消耗堆 + 出牌堆）。
+    /// 数"与弹药有关的牌"。<b>口径 = 跑团级主牌组 + 战斗中凭空生成的弹药牌</b>。
     ///
     /// <para>⚠️ 必须是 <c>static</c> 写法：乘数 lambda 一旦捕获 <c>this</c>，原版
     /// <c>CalculatedVar.WithMultiplier</c> 会直接抛 <c>"Multiplier calc must be static!"</c>
     /// （坑 27）。静态方法组转成的委托 <c>Target</c> 是 null，所以能过那道检查。</para>
     ///
-    /// <para><b>口径（用户 2026-10-04 拍板："复制品当然要计算"）</b>：
-    /// 这就是<b>规则④那种"牌组中的牌"口径</b>（"含抽牌堆+手牌+弃牌堆"），也正是<b>原版同款</b> ——
-    /// 原版 <c>PerfectedStrike</c>（"你的牌组中每有一张攻击牌，伤害+2"）用的就是
-    /// <c>PlayerCombatState.AllCards</c>；原版 <c>Squeeze</c> 还特意写了 <c>c != card</c>
-    /// 来<b>排除</b>自己，反证 <c>AllCards</c> 天然<b>包含正在打出的这一张</b>（打出时它在出牌堆里）。</para>
+    /// <para><b>为什么是"牌组"而不是"当前牌堆"（2026-10-16 玩家反馈的真 bug）</b></para>
+    /// <para>卡面英文写的本来就是 <c>"for each Ammo-related card <b>in your deck</b>"</c> ——
+    /// 这就是原版 <c>PerfectedStrike</c>（"你的牌组中每有一张攻击牌"）的口径。原实现读的是
+    /// <c>PlayerCombatState.AllCards</c>（手牌+抽牌堆+弃牌堆+消耗堆+出牌堆），
+    /// 而<b>打出的能力牌会被原版移出全部战斗牌堆</b>：</para>
+    /// <code>
+    /// CardModel.GetResultLocationForCardPlay():
+    ///     if (IsDupe || Type == CardType.Power) return new CardLocation(Owner, PileType.None, ...);
+    /// → MoveCardToResultPileAfterPlay() 的 case PileType.None:
+    ///     await CardPileCmd.RemoveFromCombat(this, ...)   // 五个战斗牌堆全摘掉，但不动跑团牌组
+    /// </code>
+    /// <para>而我们的弹药牌里有 <b>5 张是能力牌</b>（子弹模式 / 入神 / 无限子弹 / 装填姿态 / 弹匣），
+    /// ⇒ 每打出一张，<c>AllCards</c> 就少一张，<b>「口径扩大」的伤害当场 −1，且本场战斗不再回来</b>。
+    /// 玩家报的就是"打出能力牌之后伤害变低"。</para>
     ///
-    /// <para>所以"自己也算"是<b>结构上成立</b>的 —— 不需要任何特判；
-    /// 战斗中生成/复制的弹药牌也一并计入。</para>
+    /// <para><b>新口径的两个来源（互斥，天然不会重复计数）</b></para>
+    /// <list type="number">
+    /// <item><b>跑团级牌组</b> <c>owner.Deck</c> —— 战斗开始时原版把牌组里每张牌<b>克隆</b>一份进抽牌堆，
+    /// 并回填 <c>clone.DeckVersion = 原牌</c>（<c>Player.PopulateCombatState</c>）。
+    /// 所以牌组里的牌="名册"，打出的能力牌本体仍在里面 ⇒ 数得到。</item>
+    /// <item><b>战斗中生成的弹药牌</b>（<c>DeckVersion is null</c>）—— 这部分卡面没有本体，
+    /// 只能从战斗牌堆里数。用户 2026-10-04 拍板的"复制品当然要计算"由此保住。</item>
+    /// </list>
+    /// <para>两段判据用 <c>DeckVersion</c> 天然切开：牌组里的牌一定是从①数的，
+    /// 战斗牌堆里有本体的克隆（<c>DeckVersion != null</c>）不再从②数一遍。<b>不需要任何去重集合。</b></para>
     ///
-    /// <para>⚠️ <b>别用 <c>PileType.Deck</c></b>（2026-10-04 走过一次弯路）：那是
-    /// <b>跑团级主牌组</b>，战斗中的牌是它的<b>克隆</b>，于是控制台加进手牌的那张
-    /// （<c>card RAY_MOD_CARD_CALIBER_ENLARGEMENT hand</c>）数不到，卡面少 1 点伤害 ——
-    /// 用户实测就是这样（见坑 47）。</para>
+    /// <para>顺带订正一条旧注释（2026-10-04）说"别用 <c>PileType.Deck</c>，控制台加进手牌的那张数不到"：
+    /// 那个判据换掉是错的 —— 控制台加进手牌的牌<b>没有 DeckVersion</b>，正好落在②里，
+    /// 照样数得到。当时少 1 点伤害的真正原因是"只用了①、没加②"，不是"不能用牌组"。</para>
+    ///
+    /// <para>⚠️ 残余边界：战斗中<b>生成出来的能力牌</b>（<c>DeckVersion == null</c>）打出后
+    /// 仍然会从计数里消失 —— 本 mod 目前没有这种牌（生成线只有「精制子弹」等非能力牌），
+    /// 真出现了再单独记账。</para>
     /// </summary>
-    private static int CountAmmoCards(CardModel card) =>
-        card.Owner.PlayerCombatState?.AllCards.Count(c => c is IAmmoCard) ?? 0;
+    private static int CountAmmoCards(CardModel card)
+    {
+        // ① 跑团级主牌组：卡面 "in your deck" 的准确来源。打出的能力牌本体还在这里。
+        int count = card.Owner.Deck.Cards.Count(c => c is IAmmoCard);
+
+        // ② 战斗中生成/复制的弹药牌（无牌组本体）。非战斗界面时 PlayerCombatState 为 null。
+        if (card.Owner.PlayerCombatState is { } combat)
+        {
+            count += combat.AllCards.Count(c => c is IAmmoCard && c.DeckVersion is null);
+        }
+
+        return count;
+    }
 
     public CaliberEnlargement() : base(BaseEnergyCost, CardKind, CardRarityValue, CardTarget, ShowInCardLibrary)
     {
@@ -88,7 +119,7 @@ public sealed class CaliberEnlargement : ModCardTemplate, IAmmoCard
         await DamageCmd.Attack(DynamicVars.CalculatedDamage)
             .FromCard(this, cardPlay)
             .TargetingAllOpponents(CombatState)
-            .WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+            .WithHitFx("vfx/vfx_starry_impact")   // 枪械卡：点状命中（原来是 blunt 闷响）
             .Execute(choiceContext);
     }
 

@@ -140,11 +140,17 @@ internal partial class CardFieldVfx
             EnemyC: "vfx/vfx_attack_blunt", SelfTint: new Color(0.86f, 0.92f, 1.0f)),
 
         // 脱身矢（Attack/Rare）：箭飞出去 → 命中散成多道。冷蓝 + 全屏层，但没有霰弹那么暖。
+        //
+        // ★ 2026-10-21：<b>去掉原版全屏层和曝光脉冲</b>（原来是 true / vfx_starry_impact）。
+        //   原因：自绘的全屏冲击是"读屏幕纹理再色散"，而原版全屏层在<b>更早</b>的时候
+        //   就把画面压暗了；等我们的 quad 去采样时背景已经是一团暗色 ——
+        //   <b>没有亮部就没有色散可言</b>，整屏只会看起来"黑了一下"。
+        //   现在这一下的全屏改由 <c>SpawnScreenImpact</c> 独占，抖屏仍保留。
         ["EscapeArrow"] = new Profile(
-            "脱身矢", "vfx/vfx_sandy_impact", 1.20f, 0.14f, true, true,
+            "脱身矢", "vfx/vfx_sandy_impact", 1.20f, 0.14f, true, false,
             new Color(0.72f, 0.86f, 1.0f), new Color(0.82f, 0.92f, 1.0f),
             EnemyA: "vfx/vfx_heavy_blunt", EnemyC: "vfx/vfx_attack_blunt",
-            FullScreen: "vfx/vfx_starry_impact", SelfTint: new Color(0.78f, 0.90f, 1.0f)),
+            SelfTint: new Color(0.78f, 0.90f, 1.0f)),
 
         // ★★ 得见光芒（Attack/Rare，单体）：**光点从不同方向收束 → 聚成一粒 → 停一拍 → 从敌人身上炸开**。
         //    编排与设计稿见 _tools\make_vfx_gif.py + CardFieldVfx.SeeTheLight.cs（2026-10-12 用户定稿）。
@@ -454,10 +460,36 @@ internal partial class CardFieldVfx
 
         try
         {
+            // ★★ 2026-10-20：**这几个"本张牌"的计数必须在 SelectProfile 之前清零**。
+            //
+            //   用户报的 bug 原话："霰弹枪 sl 之后它牌面特效消失了"。
+            //   真因不是 SL，而是**这两个计数器一辈子只清零一次**——
+            //   原来 `_hitIndex = 0` 写在下面的 `if (!SelectProfile(card) …) return;` **之后**，
+            //   那条分支只对"有 vfx 配置的牌"才走到；而霰弹枪 / 狙击这些枪械卡**没有配置**
+            //   ⇒ `_shotgunHitIndex` 从进程启动开始一直加，`i == 0` 只在**全进程第一发**成立
+            //   ⇒ 牌面烫穿（`BurnPlayedCard` 挂在那句 `if (i == 0)` 里）**一辈子只演一次**。
+            //   SL 只是打断了玩家的连续测试，让人以为是"SL 之后坏的"。
+            //
+            //   `_burnCardId` 也要清：`NCard` 是**池化对象**（`IPoolable`），
+            //   同一张牌再打一次实例 id 可能一样，不清就会被 1.2 秒去重挡掉。
+            _hitIndex = 0;
+            _shotgunHitIndex = 0;
+            _burnCardId = 0UL;
+            _burnAtMs = 0UL;
+
+            // 弹环也必须"这张牌归这张牌"：上一轮的环可能还剩几颗没打出去，
+            // 不清的话这次出牌会接着消耗上一轮那圈（视觉上是"弹从旧的环里飞出来"）。
+            _shotgunRing = null;
+            _shotgunRingSlot = 0;
+
             // ★★ 「子弹模式」的常驻弹幕与"这张卡有没有自己的场上特效"**无关**
             //    （弹药牌大多没有配置文件）⇒ 必须放在 SelectProfile 的早退**之前**。
             //    见 CardFieldVfx.BulletMode.cs。
             BulletModeOnCardPlay(card, play, combatState);
+
+            // 「灵异录像带」：牌面磁带 + 本回合手牌东倒西歪。
+            // 同样必须在 SelectProfile 早退**之前** —— 这张牌没有 vfx 配置文件。
+            TapeCardOnPlay(card, play);
 
             if (!SelectProfile(card) || TestModeIsOn())
             {
@@ -603,6 +635,39 @@ internal partial class CardFieldVfx
         //    压根没出过牌）；② `_hitIndex` 是全局静态的 —— 队友那一击会把它推上去，
         //    把我自己的"主击全套"降级成"连击单层"（见下面 index==0 的分级逻辑）。
         if (!IsMyCard(cardSource))
+        {
+            return;
+        }
+
+        // ★★ 2026-10-20「狙击」自成一套：每一段伤害 = 一发真子弹（枪口火 + 弹道 + 弹壳 + 命中）。
+        //    它原来用的是 vfx_attack_slash（一刀刀光）—— 一把枪打出 8 道刀光。
+        //    返回 true 表示已经接管：绝不能再叠通用命中层，否则子弹和刀光同时出现。
+        //    `main` 沿用通用层同一套判据（同一张牌的第 1 段伤害）⇒ 连发时只有第 1 发抖屏。
+        if (SnipeShot(cardSource, dealer, target, main: _hitIndex == 0))
+        {
+            _hitIndex++;
+            return;
+        }
+
+        // ★★ 2026-10-20「霰弹枪」：每一点伤害 = 一记<b>从随机方向</b>打进来的命中
+        //    （用户口径："有多少子弹就从不同方向触发击中敌人特效多少次"）。
+        //    它原来用的是 vfx_attack_blunt + blunt_attack.mp3 —— 霰弹枪打出了锤子闷响。
+        if (ShotgunHit(cardSource, dealer, target))
+        {
+            return;
+        }
+
+        // ★★ 2026-10-20「灵异录像带」：被打的那个敌人头上先浮出「R.I.P」，
+        //    然后一块墓碑飞过来落在它脚边立住，一直留到本回合结束。
+        if (TapeGraveOnHit(cardSource, target))
+        {
+            return;
+        }
+
+        // ★★ 2026-10-20「脱身矢」：一根银蓝矛飞过去扎在敌人身上，命中那一瞬
+        //    她被反作用甩出去、0.65 秒后弹回来；敌人也会被推出 30px 再回位。
+        //    它原来用的是 vfx_attack_slash（一刀横向刀光）—— 和"掷矛"没关系。
+        if (EscapeArrowHit(cardSource, dealer, target))
         {
             return;
         }
@@ -984,6 +1049,31 @@ internal partial class CardFieldVfx
         }
     }
 
+    /// <summary>
+    /// ★★ <b>生物**后**面的特效容器</b> —— <c>room.BackCombatVfxContainer</c>
+    /// （<c>NCombatRoom.cs:290</c> 是 public 属性，<c>:347</c> 取自 <c>%BackCombatVfxContainer</c>）。
+    ///
+    /// <para><b>为什么要它</b>（2026-10-19）：子弹模式改成「伪 3D 环轨绕她转」之后，
+    /// 环的**后半段必须沉到她的精灵后面**，否则读不出"绕着转"，只会读成"贴在她身上"。
+    /// 前半段仍挂在 <see cref="CombatVfxContainer"/>（生物前）。
+    /// <b>两个容器都是 <c>Control</c>，但坐标原点不一定相同</b> —— 挂之前要用
+    /// <c>GlobalPosition</c> 之差把后层对齐到前层的原点（见 <c>BulletSwarm.Configure</c>）。</para>
+    /// </summary>
+    private static Node? BackVfxParentForEffects()
+    {
+        try
+        {
+            Type? t = AccessTools_TypeByName("MegaCrit.Sts2.Core.Nodes.Rooms.NCombatRoom");
+            object? room = t?.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
+
+            return room?.GetType().GetProperty("BackCombatVfxContainer")?.GetValue(room) as Node;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     /// <summary>放一个莱伊音效（走本模组自己的 <c>SfxPlayer</c>；开关/音量由玩家设置控制）。</summary>
     private static void PlayRaySfx(string which)
     {
@@ -1187,7 +1277,7 @@ internal partial class CardFieldVfx
     /// <c>ShakeStrength { None, VeryWeak, Weak, Medium, Strong, TooMuch }</c> ·
     /// <c>ShakeDuration { None, Short, Normal, Long, Forever }</c>。</para>
     /// </summary>
-    private static bool DoHitStop()
+    private static bool DoHitStop(string strengthName = ShakeStrengthName, string durationName = ShakeDurationName)
     {
         try
         {
@@ -1222,8 +1312,8 @@ internal partial class CardFieldVfx
             }
 
             ParameterInfo[] ps = target.GetParameters();
-            object? strength = Enum.Parse(ps[0].ParameterType, ShakeStrengthName);
-            object? duration = Enum.Parse(ps[1].ParameterType, ShakeDurationName);
+            object? strength = Enum.Parse(ps[0].ParameterType, strengthName);
+            object? duration = Enum.Parse(ps[1].ParameterType, durationName);
 
             target.Invoke(instance, new[] { strength, duration });
             return true;

@@ -29,9 +29,11 @@ namespace RayMod.Powers;
 /// 如果本类在它<b>之后</b>复位，刚置的位就被清掉，1.5 倍永远不生效（而且不报错）。
 /// 放在"出牌结束"就与顺序无关了：上一次出牌的复位一定早于下一次出牌的扣弹药。</para>
 ///
-/// <para><b>② 的叠层口径</b>：<c>AfterCardPlayed</c> 时按"这张攻击牌的目标"推进
-/// （<b>每张牌一层</b>，多段攻击不重复叠），伤害计算时按"当前目标是否等于上次目标"取
-/// <c>1 + 0.1 × 层数</c>。换目标 → 下一次伤害回到 ×1.0 并重新从 1 层开始。</para>
+/// <para><b>② 的叠层口径（2026-10-17 改为"每段各一次"）</b>：在 <c>AfterDamageGiven</c> 里
+/// 按<b>每一次伤害结算</b>推进（不是每张牌一次）—— 依据是 <c>AbstractModel.cs:235</c>
+/// 明确写着该钩子对多段攻击<b>每段各触发一次</b>。所以"打 5 次"的牌依次吃
+/// ×1.0 / ×1.1 / ×1.2 / ×1.3 / ×1.4。伤害计算时按"当前目标是否等于上次目标"取
+/// <c>1 + 0.1 × 层数</c>；换目标 → 下一次伤害回到 ×1.0 并从 1 层重新开始。</para>
 /// </summary>
 [RegisterPower]
 public sealed class EngrossedPower : PowerModel, IModPowerAssetOverrides
@@ -149,7 +151,7 @@ public sealed class EngrossedPower : PowerModel, IModPowerAssetOverrides
         return multiplier;
     }
 
-    // ===================== 出牌结束：复位 + 推进叠层 =====================
+    // ============ 出牌结束：复位①的标志（叠层已搬到 AfterDamageGiven）============
 
     public override Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
@@ -159,16 +161,41 @@ public sealed class EngrossedPower : PowerModel, IModPowerAssetOverrides
         }
 
         // 复位放在这里（不能放 BeforeCardPlayed，理由见类注释）。
+        // ⚠️ 叠层已经搬到 AfterDamageGiven（每段伤害各一次），这里只负责复位①的标志。
         _ammoSpentThisPlay = false;
 
-        if (cardPlay.Card.Type != CardType.Attack)
-        {
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
+    }
 
-        var target = cardPlay.Target;
-
-        if (target == null)
+    /// <summary>
+    /// ★ 2026-10-17 改（用户要求）：<b>多段伤害每一段都结算</b>。
+    ///
+    /// <para><b>原来</b>：叠层挂在 <see cref="AfterCardPlayed"/> 上 ⇒ <b>每张牌只 +1 层</b>，
+    /// 一张"打 5 次"的牌从头到尾只吃一次加成（原类注释写的正是"多段攻击不重复叠"）。</para>
+    ///
+    /// <para><b>现在</b>：挂到 <see cref="AfterDamageGiven"/>。依据是
+    /// <c>AbstractModel.cs:235</c> 的原话：<br/>
+    /// "For a multi-attack, this will run once after all hits are done
+    /// (<b>as opposed to AfterDamageGiven, which will run [per hit]</b>)"。<br/>
+    /// 即这个钩子<b>每段伤害各触发一次</b>。于是 5 段攻击的加成依次为
+    /// ×1.0 / ×1.1 / ×1.2 / ×1.3 / ×1.4，逐段递增。</para>
+    ///
+    /// <para>⚠️ <b>为什么不写在 <see cref="ModifyDamageMultiplicative"/> 里</b>：那是<b>查询型</b>钩子，
+    /// 在查询型钩子里改状态会造成联机 desync（铁律 86）。这里用"事后"钩子推进层数，
+    /// 倍率仍在纯查询的 <see cref="ModifyDamageMultiplicative"/> 里<b>只读</b>取用。</para>
+    ///
+    /// <para>⚠️ 只统计"我方打出去的、有卡牌来源的、攻击伤害" —— 与原来
+    /// <c>CardType.Attack</c> 的判据等价，但换成更贴近伤害本身的 <c>props.IsPoweredAttack()</c>。</para>
+    /// </summary>
+    public override Task AfterDamageGiven(
+        PlayerChoiceContext choiceContext,
+        Creature? dealer,
+        DamageResult result,
+        ValueProp props,
+        Creature target,
+        CardModel? cardSource)
+    {
+        if (dealer != base.Owner || cardSource == null || !props.IsPoweredAttack())
         {
             return Task.CompletedTask;
         }

@@ -1,8 +1,11 @@
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 using MegaCrit.Sts2.Core.ValueProps;
 using STS2RitsuLib.Interop.AutoRegistration;
 
@@ -53,6 +56,8 @@ public sealed class AmmoLedgerPower : PowerModel, IModPowerAssetOverrides
 
     /// <summary>不显示（纯记账容器）。</summary>
     protected override bool IsVisibleInternal => false;
+
+    private static readonly Logger Log = new("RayMod.Ammo", LogType.Generic);
 
     private int _damageThisTurn;
 
@@ -116,8 +121,46 @@ public sealed class AmmoLedgerPower : PowerModel, IModPowerAssetOverrides
         if ((base.Owner?.Player ?? base.Owner?.PetOwner) == player)
         {
             _damageThisTurn = 0;
+
+            // ★ 2026-10-17 修（玩家反馈"你只能走到这了显示 4~5，实际伤害为零"）：
+            //   账本清零了，但**卡面不会自己跟着归零** —— 「你只能走到这了」的
+            //   CalculatedDamage 读的就是这个字段（GetTurnAmmoDamage），而它是靠
+            //   UpdateCardPreview 算出来的。被【保留】带过回合的那张牌会一直停在
+            //   上一回合的数字上，于是"显示 4~5、打出去 Take 到 0"。
+            //   这里在清零的同时主动刷一次手牌数值。
+            RefreshHandCardPreviews(player);
         }
 
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 刷新手牌里所有卡的数值预览。
+    ///
+    /// <para>入口是 <c>CardModel.UpdateDynamicVarPreview(CardPreviewMode, Creature?, DynamicVarSet)</c>
+    /// （反编译 <c>CardModel.cs:1452</c>，内部逐个 <c>UpdateCardPreview</c>）。</para>
+    ///
+    /// <para>⚠️ 纯显示层：整体包 try/catch，失败也绝不能影响账本与回合流程（铁律 9）。</para>
+    /// </summary>
+    private static void RefreshHandCardPreviews(Player player)
+    {
+        try
+        {
+            var hand = player.PlayerCombatState?.Hand;
+
+            if (hand == null)
+            {
+                return;
+            }
+
+            foreach (var card in hand.Cards)
+            {
+                card.UpdateDynamicVarPreview(CardPreviewMode.Normal, null, card.DynamicVars);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warn($"[弹药账本] 刷新手牌数值失败（已忽略）：{e.Message}");
+        }
     }
 }

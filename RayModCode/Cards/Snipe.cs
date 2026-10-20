@@ -103,7 +103,14 @@ public sealed class Snipe : ModCardTemplate, ISandBeastCard, IAmmoCard
             await DamageCmd.Attack(damage)
                 .FromCard(this, cardPlay)
                 .Targeting(target)
-                .WithHitFx("vfx/vfx_attack_slash")
+                // 2026-10-20（第二轮）：命中特效<b>整段不设</b> —— 不是忘了写。
+                // ① 原来借 vfx_attack_slash ⇒ 一把枪打出刀光；
+                // ② 中间换过 vfx_starry_impact，录屏逐帧看下来<b>它的紫白爆闪会把我自己画的
+                //    弹道/枪口火/命中环完全盖掉</b>（见 Art\CardFieldVfx.Snipe.cs 的文件注释）。
+                // `WithHitFx(string? vfx = null, ...)` 的参全是可空的，
+                // 不调用它就等于 HitVfx/HitSfx 保持 null ⇒ 原版不再额外播任何命中特效，
+                // 这一段演出完全由 RayMod 接管。
+                // ⚠️ 只改表现，伤害/目标/顺序一个字没动。
                 .Execute(choiceContext);
         }
     }

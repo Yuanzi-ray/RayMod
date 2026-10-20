@@ -58,7 +58,9 @@ public sealed class Shotgun : ModCardTemplate, IAmmoCard
             .WithHitCount(1 + extraHits)
             .FromCard(this, cardPlay)
             .TargetingAllOpponents(CombatState)
-            .WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+            // 2026-10-20（第二轮）：命中特效整段不设 —— 原版 vfx_starry_impact 的紫白爆闪
+            // 会盖掉 Art\CardFieldVfx.Shotgun.cs 自己画的"从随机方向飞来的霰弹"。
+            // WithHitFx 的三个参全可空，不调用 ⇒ HitVfx/HitSfx 为 null ⇒ 不再播任何原版命中特效。
             .Execute(choiceContext);
     }
 

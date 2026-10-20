@@ -4,5 +4,11 @@
   "NEOW.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "[sine]去吧……用这份模板……搭出你的角色……[/sine]",
   "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.char": "这里还很空。",
   "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.next": "继续",
-  "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "空白正好！随便拿点东西填进去吧！"
+  "DARV.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "空白正好！随便拿点东西填进去吧！",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.char": "我挖到过更深的地方。这里还不算深。",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-0.next": "继续",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.0-1.ancient": "[sine]……那你该知道，越往下越暗。[/sine]",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-0r.char": "太阳不在塔顶。太阳在走出去的路上。",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-1r.ancient": "[sine]那就再走一次。我在这儿看着。[/sine]",
+  "THE_ARCHITECT.talk.RAY_MOD_CHARACTER_RAY_MOD_CHARACTER.1-0r.next": "继续"
 }

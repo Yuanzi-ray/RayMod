@@ -40,6 +40,18 @@ public static class VoiceState
     public static bool SfxEnabled { get; set; } = true;
 
     /// <summary>
+    /// ★★ <b>主题曲开关</b>（2026-10-19 用户指定："那段音乐我想游玩莱伊时循环播放（设置可以开关）"）。
+    ///
+    /// <para>曲子 = `res://RayMod/audio/music/raymod_theme.mp3`（用户给的
+    /// `m_sys_act16mini_combine.mp3`）。由 <see cref="RayMusic"/> 轮询这个开关来播/停，
+    /// 所以**关掉之后下一帧就停**，不需要重启游戏。</para>
+    ///
+    /// <para>和 <see cref="SfxEnabled"/> 分开：一个是"动作反馈"，一个是"背景音乐"，
+    /// 玩家的诉求完全不同（有人要音效但嫌音乐吵）。</para>
+    /// </summary>
+    public static bool MusicEnabled { get; set; } = true;
+
+    /// <summary>
     /// 音效音量（0~1，设置页滑条）。作用于我们自己放的所有音效**和**角色的
     /// 攻击/施法/死亡/选角四条音（后四条走虚拟 FMOD 事件，注册时把音量传进去）。
     /// </summary>
@@ -134,6 +146,7 @@ public static class VoiceState
             CombatEnabled = config.GetValue(Section, "combat", true).AsBool();
             SystemEnabled = config.GetValue(Section, "system", true).AsBool();
             SfxEnabled = config.GetValue(Section, "sfx", true).AsBool();
+            MusicEnabled = config.GetValue(Section, "music", true).AsBool();   // ★ 主题曲开关（2026-10-19）
             SfxVolume = Math.Clamp(config.GetValue(Section, "sfx_volume", 0.7).AsDouble(), 0.0, 1.0);
             HudOffsetX = Math.Clamp(config.GetValue(Section, "hud_offset_x", 0.0).AsDouble(), -400.0, 400.0);
             HudOffsetY = Math.Clamp(config.GetValue(Section, "hud_offset_y", 0.0).AsDouble(), -400.0, 400.0);
@@ -168,6 +181,7 @@ public static class VoiceState
             config.SetValue(Section, "combat", CombatEnabled);
             config.SetValue(Section, "system", SystemEnabled);
             config.SetValue(Section, "sfx", SfxEnabled);
+            config.SetValue(Section, "music", MusicEnabled);          // ★ 主题曲开关（2026-10-19）
             config.SetValue(Section, "sfx_volume", SfxVolume);
             config.SetValue(Section, "hud_offset_x", HudOffsetX);
             config.SetValue(Section, "hud_offset_y", HudOffsetY);

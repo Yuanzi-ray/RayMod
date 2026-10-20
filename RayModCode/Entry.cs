@@ -58,6 +58,10 @@ public partial class Entry
         // ——也就是**铁甲战士**的音（用户实机抓到"攻击牌响别人的音"）。
         Audio.CharacterSfx.RegisterVirtualEvents();
 
+        // ★ 主题曲（2026-10-19 用户指定）：游玩莱伊时循环播放，设置页可开关。
+        //   挂一个常驻轮询节点（幂等），开关变化下一帧生效。
+        Audio.RayMusic.Attach();
+
         // 设置页（模组设置 → RayMod → 莱伊 · 皮肤）。内部已经包了 try/catch，
         // 注册失败只少一个界面，不影响换肤本身。
         RayMod.Settings.RayModSkinSettings.Register();
@@ -86,6 +90,18 @@ public partial class Entry
         //    这种现象的症状就是"功能像没实现"，日志里一个字都没有（BulletAmmoCostHintPatch 曾疑似如此）。
         //    所以这里对几个关键目标**显式数一遍我们自己的补丁**：进游戏第一次就能在日志里看到。
         LogHarmonySelfCheck(harmony);
+
+        // ★ 反射型效果的启动自检（2026-10-20）：「无限」的世界层没有 Harmony 补丁，
+        //   全靠反射找容器 / 音效命令 / 抖屏，同样会在"名字对不上"时**静默不出现**。
+        RayMod.Art.CardFieldVfx.LogInfinityWorldProbe();
+
+        // ★★ 常驻心跳（2026-10-20，修用户报的"SL 一次后特效消失"）：
+        //   弹链 / 绕体光环 / 巨眼 / 弹幕 都是 `PowerModel.AfterApplied` 挂上去的，
+        //   而 AfterApplied 在全游戏里只有 `PowerCmd.cs:159` 一个调用点；
+        //   存档是**直接反序列化能力列表**、不走 PowerCmd ⇒ SL 之后这四个全都没了。
+        //   这里往 SceneTree.Root 挂一个 0.5 秒对账的心跳（换房间 / SL 都回收不到它），
+        //   缺什么补什么、并且**重新认人**（SL 后是新的 Player 实例）。
+        RayMod.Art.CardFieldVfx.EnsurePersistBeat();
 
         Logger.Info("RayMod initialized.");
     }
@@ -168,6 +184,21 @@ public partial class Entry
                     HarmonyLib.AccessTools.Method(
                         HarmonyLib.AccessTools.TypeByName("MegaCrit.Sts2.Core.Nodes.Cards.NTinyCard"),
                         "SetCardBackColor")),
+
+                // ── ★ 2026-10-19「填装形态」的三个目标。**都是"小方法"（12~20 行），
+                //    正是铁律 73 的高危区**（被调用方 JIT 内联 ⇒ 补丁静默不执行）。
+                //    所以必须进自检，否则"没动画"会被误当成"逻辑没写到"。
+                ("NCardFlyVfx.Create(NCard,PileType,bool,string)",
+                    RayMod.Patches.CardReloadVfxTargets.CreateFour),
+                ("NCardFlyVfx._Ready",
+                    RayMod.Patches.CardReloadVfxTargets.Ready),
+                ("NPlayerHand.Add(NCard,int)",
+                    RayMod.Patches.CardReloadVfxTargets.HandAdd),
+
+                // ★ 拖拽残影的入口。它是 async（状态机）⇒ 不被内联，但仍要进自检，
+                //   否则"拖牌没残影"同样会被误当成"功能没写到"。
+                ("NMouseCardPlay.LerpToMouse(NHandCardHolder)",
+                    RayMod.Patches.CardReloadVfxTargets.DragLerp),
             };
 
             foreach ((string label, MethodBase? target) in probes)

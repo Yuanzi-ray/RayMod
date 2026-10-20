@@ -1,4 +1,5 @@
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -37,6 +38,35 @@ public sealed class LoadingPosturePower : PowerModel, IModPowerAssetOverrides
     public override PowerStackType StackType => PowerStackType.Counter;
 
     public override bool AllowNegative => false;
+
+    /// <summary>
+    /// ★★ 2026-10-19 <b>表现层挂载点</b>（用户："填装形态下，卡牌不再是简单飞回弃牌堆或者简单抽上来。
+    /// 并且需要有个常驻特效"）。
+    ///
+    /// <para>和「巨兽」<c>FeranmutsPower.AfterApplied → CardFieldVfx.AttachGiantEye</c> 完全同一套路：
+    /// Power 只管<b>什么时候挂/收</b>，画什么全在 <c>Art\CardFieldVfx.ReloadForm.cs</c>。
+    /// 「收」不需要我们操心 —— 弹链自己每 0.5s 自查一次 <c>GetPower&lt;LoadingPosturePower&gt;()</c>。</para>
+    ///
+    /// <para>⚠️ 本钩子<b>只做表现</b>：不加减弹药、不改上限。数值在 <see cref="AfterCardPlayed"/> 里。</para>
+    /// </summary>
+    public override Task AfterApplied(Creature? applier, CardModel? cardSource)
+    {
+        RayMod.Art.CardFieldVfx.AttachAmmoBelt(base.Owner?.Player ?? base.Owner?.PetOwner);
+
+        // ★ 2026-10-19：她**身边**的常驻件（缠体螺旋光带 + 下落黄铜弹壳）。
+        //   与上面那条 HUD 弹链是两件事：弹链在界面角上，这个画在战场上、贴着她本人。
+        RayMod.Art.CardFieldVfx.AttachReloadAura(base.Owner?.Player ?? base.Owner?.PetOwner);
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>能力掉了：立即收场（不靠轮询也来得及）。</summary>
+    public override Task AfterRemoved(Creature oldOwner)
+    {
+        RayMod.Art.CardFieldVfx.RetireAmmoBelt();
+        RayMod.Art.CardFieldVfx.RetireReloadAura();
+        return Task.CompletedTask;
+    }
 
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

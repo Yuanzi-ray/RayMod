@@ -2,6 +2,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.ValueProps;
 using RayMod.Ammo;
 using RayMod.Characters;
@@ -59,8 +60,19 @@ public sealed class OnlyGoThisFar : ModCardTemplate, IAmmoCard
         // 取账本并清零（一张牌只领一次，避免连打两张把同一笔伤害算两遍）。
         int total = AmmoCmd.TakeTurnAmmoDamage(Owner);
 
+        // ★ 2026-10-17：玩家反馈"卡面显示 4~5，实际伤害为零"。
+        //   卡面读的是 GetTurnAmmoDamage（只读、实时累计），这里读的是 TakeTurnAmmoDamage
+        //   （取走并清零）—— 两者读的是**同一个字段**，所以显示与结算不一致只可能是
+        //   "预览渲染之后、真正打出之前账本被清空了"。最可能的场景：升级后带【保留】，
+        //   卡被留到下一回合，而账本在 AmmoLedgerPower.AfterPlayerTurnStart 里每回合清零。
+        //   这里先把两个数字都打进日志，别再靠猜。
+        Log.Info($"[你只能走到这了] Take 到账本 total={total}（卡面同一字段）");
+
         if (total <= 0)
         {
+            // 以前这里静默 return：打出去什么都不发生、不报错、不提示 —— 最糟的失败方式。
+            Log.Warn("[你只能走到这了] 账本为 0 ⇒ 不造成伤害。"
+                     + "若此刻卡面仍显示非 0，就是卡面没随账本清零而刷新（见 AmmoLedgerPower.AfterPlayerTurnStart）");
             return;
         }
 

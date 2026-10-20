@@ -71,7 +71,7 @@ public sealed class RefactoringBullets : ModCardTemplate, IAmmoCard
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
             .FromCard(this, cardPlay)
             .Targeting(cardPlay.Target)
-            .WithHitFx("vfx/vfx_attack_blunt", null, "heavy_blunt_attack.mp3")
+            .WithHitFx("vfx/vfx_starry_impact")   // 枪械卡：点状命中（原来是 blunt 闷响）
             .Execute(choiceContext);
 
         // 2) 下两张攻击牌：额外造成 弹药 × 系数（升级后 ×2）。

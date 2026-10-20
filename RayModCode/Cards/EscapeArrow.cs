@@ -74,10 +74,14 @@ public sealed class EscapeArrow : ModCardTemplate, IAmmoCard
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
 
+        // ★ 2026-10-20：命中特效交给自绘那一套（`CardFieldVfx.EscapeArrowHit` 里的银蓝矛 +
+        // 星爆 + 她被甩出去）。`AttackCommand.WithHitFx` 的三个参数全可空，
+        // 第一个传 null ⇒ <b>不播任何原版命中特效</b>；这里只保留第三参的命中音效，
+        // 因为"掷矛扎进去"这一下需要一声响。
         await DamageCmd.Attack(DynamicVars.CalculatedDamage)
             .FromCard(this, cardPlay)
             .Targeting(cardPlay.Target)
-            .WithHitFx("vfx/vfx_attack_slash", null, "heavy_attack.mp3")
+            .WithHitFx(null, null, "heavy_attack.mp3")
             .Execute(choiceContext);
 
         AmmoCmd.AddAmmo(Owner, DynamicVars["AmmoGain"].IntValue);

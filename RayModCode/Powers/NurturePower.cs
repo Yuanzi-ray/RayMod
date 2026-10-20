@@ -46,7 +46,12 @@ public sealed class NurturePower : PowerModel, IModPowerAssetOverrides
 
     private static readonly Logger Log = new("RayMod.Powers", LogType.Generic);
 
-    private bool _subscribed;
+    /// <summary>
+    /// ★ 2026-10-17：订阅时把 owner 捕获下来，不要在回调里每次重算。
+    /// 原来的回调里是 <c>(base.Owner?.Player ?? base.Owner?.PetOwner) != player</c> 就静默 return ——
+    /// 一旦 <c>base.Owner</c> 在这一刻为 null，效果就永久静默失效且不留任何日志。
+    /// </summary>
+    private Player? _ownerPlayer;
 
     public override PowerType Type => PowerType.Buff;
 
@@ -55,13 +60,28 @@ public sealed class NurturePower : PowerModel, IModPowerAssetOverrides
 
     public override bool AllowNegative => false;
 
+    /// <summary>
+    /// ★ 2026-10-17 修「哺育不生效」（玩家实机反馈：打出了卡、之后召唤了很多次，但一张牌都没给）。
+    ///
+    /// <para><b>诊断证据</b>（godot.log 实证）：`playing card RAY_MOD_CARD_NURTURE` 之后有 17 次以上
+    /// 「召唤 N 只」，而 <c>[哺育]</c> 日志 <b>0 条</b>——说明回调从来没被调用过。</para>
+    ///
+    /// <para><b>原实现的脆点</b>：用实例标志 <c>_subscribed</c> 做"只订阅一次"。但
+    /// <see cref="DepthEvents"/> 的处理器是<b>静态</b>列表，而 <c>DepthCmd.EnsurePower</c> 里的
+    /// <c>DepthEvents.ClearAll()</c> 会把它清空 —— 一旦在订阅之后被清，标志仍是 <c>true</c>，
+    /// 于是<b>永不重订</b>，效果静默死掉。</para>
+    ///
+    /// <para><b>新写法</b>：去掉标志，<b>无条件</b> <c>RegisterSummoned</c>（它内部用
+    /// <c>Contains</c> 去重，重复调用是安全的），并在订阅成功时打一条日志 ——
+    /// 这样"订阅有没有上"以后在日志里一眼可见。</para>
+    /// </summary>
     public override Task AfterApplied(Creature? applier, CardModel? cardSource)
     {
-        if (!_subscribed)
-        {
-            DepthEvents.RegisterSummoned(OnSummoned);
-            _subscribed = true;
-        }
+        _ownerPlayer = base.Owner?.Player ?? base.Owner?.PetOwner;
+
+        DepthEvents.RegisterSummoned(OnSummoned);
+
+        Log.Info($"[哺育] 已订阅召唤事件；owner={(_ownerPlayer == null ? "null(!!)" : "ok")}");
 
         return Task.CompletedTask;
     }
@@ -73,20 +93,34 @@ public sealed class NurturePower : PowerModel, IModPowerAssetOverrides
     public override Task AfterRemoved(Creature oldOwner)
     {
         DepthEvents.UnregisterSummoned(OnSummoned);
-        _subscribed = false;
+        _ownerPlayer = null;
+
+        Log.Info("[哺育] 已退场，取消订阅");
 
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// ★ 2026-10-17：入口先打一条日志。原来三条出口里只有两条会打日志，
+    /// "owner 不匹配"那条是<b>完全静默</b>的 —— 正是它让"不生效"这件事查不出来。
+    /// </summary>
     private void OnSummoned(Player player, int count, CardModel? cardSource)
     {
+        bool ownerMatches = _ownerPlayer == player;
+
+        Log.Info($"[哺育] 收到召唤广播：count={count} " +
+                 $"source={(cardSource?.Id.Entry ?? "null")} ownerMatch={ownerMatches}");
+
         if (count <= 0)
         {
+            Log.Info("[哺育] count<=0，忽略");
             return;
         }
 
-        if ((base.Owner?.Player ?? base.Owner?.PetOwner) != player)
+        if (!ownerMatches)
         {
+            // 这条以前是静默的。现在留痕：如果它出现，说明 owner 的取法有问题。
+            Log.Warn("[哺育] owner 与广播玩家不一致 → 忽略（这就是不生效的根因）");
             return;
         }
 

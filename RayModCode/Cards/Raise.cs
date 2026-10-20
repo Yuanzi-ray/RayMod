@@ -1,6 +1,7 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using RayMod.Characters;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -36,6 +37,16 @@ public sealed class Raise : ModCardTemplate, ISandBeastCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new CardsVar("Count", 2)
+    ];
+
+    /// <summary>
+    /// ★ 2026-10-17（玩家反馈 Wave）：卡面只写了「沙地兽」这个名字，
+    /// 玩家看不到那张衍生牌到底做什么 ⇒ 挂一条指向衍生牌本身的悬停提示。
+    /// 生成的永远是未升级版，所以传 <c>false</c>。
+    /// </summary>
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+    [
+        HoverTipFactory.FromCard<RayMod.Cards.SandBeast>(upgrade: false)
     ];
 
     /// <summary>消耗词条（设计稿明确写了）。</summary>

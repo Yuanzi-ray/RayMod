@@ -92,5 +92,16 @@ internal static class HudAttachTimingPatch
         {
             // 静默
         }
+
+        // ★ 2026-10-20：顺手确认常驻心跳还在。它挂在 SceneTree.Root 上，正常不该丢，
+        //   但这里每进一次战斗房都便宜地补一次（幂等），省得"某次进房之后再没挂上"。
+        try
+        {
+            Art.CardFieldVfx.EnsurePersistBeat();
+        }
+        catch
+        {
+            // 静默
+        }
     }
 }

@@ -4,7 +4,7 @@
   "pck_name": "RayMod",
   "author": "Yuanzi_",
   "description": "一个关于明日方舟角色莱伊的模组，她将在尖塔中寻光。\nA mod about Ray, a character from Arknights. She will seek the light within the Spire.",
-  "version": "0.1.1",
+  "version": "0.1.7",
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,

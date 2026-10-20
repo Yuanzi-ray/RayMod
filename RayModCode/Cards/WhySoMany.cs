@@ -2,6 +2,7 @@ using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using RayMod.Characters;
@@ -47,6 +48,18 @@ public sealed class WhySoMany : ModCardTemplate, ISandBeastCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new CardsVar("Count", 2)
+    ];
+
+    /// <summary>
+    /// ★ 2026-10-17（玩家反馈 Wave）：卡面只写了「沙地兽」这个名字，
+    /// 玩家看不到变化出来的牌到底做什么 ⇒ 挂一条指向衍生牌本身的悬停提示。
+    ///
+    /// <para>这里传 <c>IsUpgraded</c>（和 <c>OnPlay</c> 里一致）：本卡升级后变化出来的是
+    /// <b>升级版</b>沙地兽，提示必须如实反映。</para>
+    /// </summary>
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+    [
+        HoverTipFactory.FromCard<RayMod.Cards.SandBeast>(upgrade: IsUpgraded)
     ];
 
     public WhySoMany() : base(BaseEnergyCost, CardKind, CardRarityValue, CardTarget, ShowInCardLibrary)

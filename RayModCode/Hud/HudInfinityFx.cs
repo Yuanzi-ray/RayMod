@@ -18,19 +18,22 @@ namespace RayMod.Hud;
 /// <b>我们自己的</b> <see cref="ResourceHudCounter"/>（<c>Label</c>，节点名 <c>Value</c>），
 /// 改起来不用碰任何游戏 UI。</para>
 ///
-/// <para><b>编排</b>（总长 <see cref="Total"/> = 3.37s —— 开场 2.05s + 原来那五拍 1.32s）：</para>
+/// <para><b>编排</b>（总长 <see cref="Total"/> = 1.05s —— 开场 0.75s + 收尾 0.30s；
+/// ★ 2026-10-19 重做，原来是 3.37s，砍掉的是"横跨屏幕飞"那 2.3s）：</para>
 /// <list type="number">
-/// <item><b>开场（0 ~ 2.05s，2026-10-13 用户定的）</b>：<b>屏幕中央由粒子烟雾组成一个 ∞</b>
-/// （错开浮现 → 定住一拍）→ <b>每颗粒子各飞各的</b>（自己的贝塞尔弧线 + 出发延迟 + 时长），
-/// 散开后再汇聚到 HUD"上限"位置、聚成一个小 ∞ ⇒ 用户原话："感觉屏幕中间浮现一个粒子烟雾组成的
-/// ∞ 然后飞向弹药 hub"+"粒子肯定要散开飞向，整个平移太不美观了"。见 <c>HudInfinityFx.Opening.cs</c>。</item>
-/// <item><b>2.28s</b>：★ <b>2026-10-13 用户改的编排</b> —— 上限那串字<b>不再"一路增长"</b>，而是
+/// <item><b>开场（0 ~ 0.75s，2026-10-19 重写）</b>：粒子<b>不横穿屏幕</b>，一开始就聚在
+/// <b>弹药 HUD 那块牌子旁边、字形自己的落点周围</b>（同一个 ∞ 放大 1.7~3.4 倍），
+/// 然后<b>径向收进曲线</b>（位置收拢 + 缩到 0.2 + 淡出）⇒ 读成"烟凝成一条线"，
+/// 而不是"从屏幕中央飘过来再硬切成 UI ∞"。用户原话（重做的起因）：
+/// "∞散开成粒子飘过去，然后 ui 就生硬的变成了 ∞。太诡异了"。见 <c>HudInfinityFx.Opening.cs</c>。</item>
+/// <item><b>0.06s</b>：★ <b>2026-10-13 用户改的编排</b> —— 上限那串字<b>不再"一路增长"</b>，而是
 /// <b>略微振动</b>（越接近刀口抖得越厉害）+ <b>沙石从字上掉落</b>（"数字像砂岩一样崩解"）。
 /// <b>当前弹药（分子）纹丝不动</b> —— 用户原话："<b>后面那个数字才是上限</b>"。</item>
-/// <item><b>2.81s</b>：振动幅度的顶点（<b>原来是刀光时刻 —— 用户 2026-10-13 说"刀光也去掉啊"，
+/// <item><b>0.24s</b>：振动幅度的顶点（<b>原来是刀光时刻 —— 用户 2026-10-13 说"刀光也去掉啊"，
 /// 刀光已整块删除</b>，见 <c>DrawCrumblingFlash</c> 的说明）。</item>
-/// <item><b>3.01s</b>：白闪（就闪在被劈中的那串数字上），变异数字消失。</item>
-/// <item><b>3.16s</b>：<b>上限变 ∞</b> —— 把牌子自己的 <c>Label</c> 亮回来（文字由
+/// <item><b>0.30s</b>：白闪（就闪在被劈中的那串数字上），变异数字消失 —— <b>同时也是最后一颗粒子
+/// 落到曲线上那一拍</b>（粒子把 ∞ 交给字形贴图，白闪把这一刻"点着"）。</item>
+/// <item><b>0.62s</b>：<b>上限变 ∞</b> —— 把牌子自己的 <c>Label</c> 亮回来（文字由
 /// <c>AmmoState</c> 的推送同源给出，见那里的 <c>∞</c> 分支）。</item>
 /// <item>之后本节点<b>不销毁</b>：只留一圈<b>金色高亮</b>罩着牌子（"上限已解除"的状态显示），
 /// 直到 <c>AmmoState.IsOverCapThisTurn</c> 变假（= 下回合开始，<c>AmmoPower.AfterPlayerTurnStart</c>
@@ -52,14 +55,16 @@ internal sealed partial class HudInfinityFx : Control
         RayMod.Audio.VoiceState.VfxEnabled && RayMod.Audio.VoiceState.FieldVfxEnabled;
 
     // ── 时间表（秒）──
-    // ★★ 2026-10-13：前面多了一段**开场**（屏幕中央烟雾 ∞ 成形 → **逐粒子**飞向弹药 HUD，
-    //    见 `HudInfinityFx.Opening.cs`），原来的几拍**一个都没改**，只是整体后移 2.15s。
-    private const float Total = FlyEnd + 1.32f;   // 3.37s（含开场 ≈2.05s + 收尾 1.32s）
-    private const float MutateAt = 2.28f;     // 上限那位开始振动 + 沙石开始掉（= 烟落定后 0.23s 的喘息）
-    private const float PeakAt = 2.81f;       // 振动幅度的顶点（**原来是刀光时刻**，刀光已去掉，§S40）
-    private const float FlashAt = 3.01f;      // 一记白光（沙石**停止生成**）
-    private const float RevealAt = 3.16f;     // ∞ 揭晓（恢复牌子自己的字）
-    private const float RevealDone = 3.37f;
+    // ★★★ 2026-10-19 **重做**：原来"屏幕中央烟雾 ∞ → 逐粒子横跨屏幕飞向 HUD"那一段
+    //    （用户："∞散开成粒子飘过去…太诡异了"）**已整块删掉**，改为在牌子那儿直接成形 + 收拢。
+    //    整段演出从 3.37s 缩到 1.05s；粒子段的时刻全在 `HudInfinityFx.Opening.cs` 里定
+    //    （CloudStart / CloudEnd / GlyphInAt / GlyphInEnd / SuckEnd），这里只接后半段。
+    private const float Total = SuckEnd + 0.30f;   // 1.05s（开场 0.75s + 收尾 0.30s）
+    private const float MutateAt = 0.06f;     // 上限那位开始振动 + 沙石开始掉（几乎立刻）
+    private const float PeakAt = 0.24f;       // 振动幅度的顶点
+    private const float FlashAt = 0.30f;      // 一记白光（= 最后一颗粒子落到线上那一拍）
+    private const float RevealAt = 0.62f;     // 牌子自己的字回来（此时字形已 alpha 1，同框段过去了）
+    private const float RevealDone = 0.80f;
 
     // ★★★ 2026-10-13 用户改的设计（**别改回去**）：
     //    ① "把数字增长改掉吧。改成略微振动+有沙石掉落" ⇒ 发疯序列 `Glitch = {10,100,…}` **已删除**；
@@ -83,6 +88,16 @@ internal sealed partial class HudInfinityFx : Control
     private const string GlowPath = Entry.ResPath + "/images/vfx/fx_glow_solid.png";
     private const string FlarePath = Entry.ResPath + "/images/vfx/fx_flare_01.png";         // 白光芯
     private const string InfinityPath = Entry.ResPath + "/images/characters/RayMod_hud_infinity.png";
+
+    /// <summary>字形贴图的绘制宽度 = <c>字号 × 它</c>（**唯一尺寸来源**，见 <see cref="TryGetGlyphShape"/>）。</summary>
+    private const float GlyphSizeFrac = 1.60f;
+
+    /// <summary>字形中心相对"文字右端"再让开的距离（× 绘制宽度）—— 贴图里 ∞ 左侧带一点留白。</summary>
+    private const float GlyphGapFrac = 0.52f;
+
+    /// <summary>落定震动：时长（秒）与幅度（占尺寸的比例）。</summary>
+    private const float SettleShockTime = 0.12f;
+    private const float SettleShockAmp = 0.06f;
 
     private static readonly Logger Log = new("RayMod.Hud", LogType.Generic);
 
@@ -230,17 +245,13 @@ internal sealed partial class HudInfinityFx : Control
             //      实机踩到：∞ 曾经在回合结束（数字已回到 `4/7`）之后还挂着淡出，贴在 7 后面，位置就错了。
             _overCap = AmmoCmd.IsOverCapThisTurn(_player);
 
-            if (_t < MutateAt)
+            if (_overCap)
             {
-                // ★★ 开场段：**上限还在**（牌子显示 `4/7`）。
-                //    2026-10-13 加：`SetOverCapThisTurn` 一被调用，`AmmoState` 推送的就是 `<当前>/`
-                //    （上限被压掉，见 AmmoHudText 的 ∞ 分支）⇒ 开场那 2 秒牌子会挂着一条"孤零零的斜杠"，
-                //    而烟正是要**落到那个"7"所在的∞槽位**上。所以开场这一段由我们把上限显示回来，
-                //    到「∞ 揭晓」那一拍再交还给 `AmmoState` 的同源文字。
-                OwnLabelText(showCap: true);
-            }
-            else if (_overCap)
-            {
+                // ★★★ 2026-10-19 重做后**开场段也显示 `<当前>/`**（旧实现里开场那一段特意把上限写回来成 `4/7`，
+                //    因为烟要落到那个"7"所在的槽位上）。现在 ∞ 是在**字形自己的落点**上成形的
+                //    （见 `HudInfinityFx.Opening.cs` 的 `TryGetGlyphShape`），
+                //    所以开场就把上限压掉、让文字宽度从第一帧起就稳定 —— 否则 `4/7 → 0/` 那一下
+                //    会让字形的锚点横移一个字宽，粒子跟着跳一下。
                 OwnLabelText(showCap: false);
             }
             else if (_revealed)
@@ -612,15 +623,55 @@ internal sealed partial class HudInfinityFx : Control
     /// </summary>
     private void DrawInfinityGlyph()
     {
-        Label? label = ResourceHud.Ammo.LabelNode;
-
-        if (label == null || !GodotObject.IsInstanceValid(label) || !label.IsInsideTree() || _infinityGlyph == null)
+        if (_t < GlyphInAt || !TryGetGlyphShape(out InfinityShape shape, out float drawnSize))
         {
             return;
         }
 
-        float k = Mathf.Clamp((_t - RevealAt) / 0.22f, 0f, 1f);     // 揭晓那一拍"弹出来"
-        float ease = Smoothstep(k);
+        // ★ 同框段（GlyphInAt→GlyphInEnd）：alpha 0 → 1。
+        //   和粒子的"1 → 0.35"互补 ⇒ 两者**叠着**过渡，读成"烟凝成线"，而不是换了一张图。
+        float k = Smoothstep((_t - GlyphInAt) / Mathf.Max(0.05f, GlyphInEnd - GlyphInAt));
+
+        // 常驻期（方案 §2.4：别再"死"住）：
+        //   ① 极轻的呼吸 ±1.5% / 3.6s（和巨兽同一个节奏语言）；
+        //   ② 落定那一下的一次性震动（0.12s、±6%）—— 让"凝成"这一下有重量。
+        float breath = 1f + 0.015f * Mathf.Sin(Mathf.Tau * (_t - SuckEnd) / 3.6f);
+        float shock = 0f;
+        float after = _t - SuckEnd;
+
+        if (after > 0f && after < SettleShockTime)
+        {
+            float sk = after / SettleShockTime;
+            shock = SettleShockAmp * (1f - sk) * Mathf.Sin(sk * Mathf.Pi * 2.5f);
+        }
+
+        DrawTex(_infinityGlyph, shape.Center, drawnSize * breath * (1f + shock), 0f,
+                new Color(1f, 1f, 1f, _fade * Mathf.Lerp(0f, 1f, k)), 1.90f);
+    }
+
+    /// <summary>
+    /// ★★★ <b>∞ 的唯一几何</b>（2026-10-19 重做时引入）：字形贴图的<b>中心与尺寸只在这里算一次</b>，
+    /// 粒子（<c>HudInfinityFx.Opening.cs</c>）与贴图绘制（<see cref="DrawInfinityGlyph"/>）**都读它**。
+    ///
+    /// <para><b>为什么必须唯一</b>：重做前粒子按控件宽算、贴图按字号算，两套几何交接时必然错位 ——
+    /// 用户那句"ui 就生硬的变成了 ∞"的数学来源就在这里。现在只剩<b>字号</b>这一个单位（铁律 80）。</para>
+    ///
+    /// <para><b>为什么半宽 = 绘制宽度的一半</b>：字形贴图 <c>RayMod_hud_infinity.png</c> 是 256×256，
+    /// 实测墨迹 bbox = x 0..255（<b>铺满整幅宽</b>）、y 57..198 ⇒ 画出来的宽度就是墨迹宽度。</para>
+    /// </summary>
+    private bool TryGetGlyphShape(out InfinityShape shape, out float drawnSize)
+    {
+        shape = default;
+        drawnSize = 0f;
+
+        Label? label = ResourceHud.Ammo.LabelNode;
+
+        if (label == null || !GodotObject.IsInstanceValid(label) || !label.IsInsideTree()
+            || _infinityGlyph == null)
+        {
+            return false;
+        }
+
         float fontSize = label.GetThemeFontSize("font_size");
 
         Font? font = label.GetThemeFont("font");
@@ -628,11 +679,14 @@ internal sealed partial class HudInfinityFx : Control
             ? font.GetStringSize(label.Text, HorizontalAlignment.Left, -1, (int)fontSize).X
             : fontSize * Mathf.Max(1, label.Text.Length) * 0.6f;
 
-        float size = fontSize * 1.60f * Mathf.Lerp(0.55f, 1.0f, ease);
-        Vector2 at = ToLocal(label.GlobalPosition)
-                     + new Vector2(label.Size.X / 2f + textW / 2f + size * 0.52f, label.Size.Y / 2f);
+        drawnSize = fontSize * GlyphSizeFrac;
 
-        DrawTex(_infinityGlyph, at, size, 0f, new Color(1f, 1f, 1f, _fade * Mathf.Lerp(0.35f, 1f, ease)), 1.90f);
+        Vector2 at = ToLocal(label.GlobalPosition)
+                     + new Vector2(label.Size.X / 2f + textW / 2f + drawnSize * GlyphGapFrac,
+                                   label.Size.Y / 2f);
+
+        shape = new InfinityShape(at, drawnSize * 0.5f);
+        return true;
     }
 
     private static float Smoothstep(float x)

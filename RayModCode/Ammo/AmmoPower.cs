@@ -216,6 +216,9 @@ public sealed class AmmoPower : PowerModel, IModPowerAssetOverrides
         if ((base.Owner?.Player ?? base.Owner?.PetOwner) == player)
         {
             AmmoCmd.EndOverCapTurn(player);
+
+            // 「灵异录像带」的"本回合手牌东倒西歪"只活一个回合 —— 新回合把所有牌的角度还回去。
+            RayMod.Art.CardFieldVfx.ClearTapeHand();
         }
 
         await Task.CompletedTask;

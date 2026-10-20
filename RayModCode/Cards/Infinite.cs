@@ -58,6 +58,11 @@ public sealed class Infinite : ModCardTemplate, IAmmoCard
         //   演出再接管那串字（先藏起来自己画，最后亮回真数字）。
         Hud.HudInfinityFx.Play(Owner);
 
+        // ★ 2026-10-20：**世界层**（她身后炸开一个大 ∞ + 脚下冲击波 + 音效 + 一记抖屏）。
+        //   和上面那一路**同一拍起手** —— HUD 只管"上限那个字"，屏幕主体靠这一层，
+        //   否则整场演出只有角落 230px 在动（用户："现在观感依旧不够"）。
+        Art.CardFieldVfx.SpawnInfinityBurst(Owner);
+
         await Task.CompletedTask;
     }
 
