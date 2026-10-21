@@ -28,13 +28,13 @@
         <!-- Local test builds use this directory when RitsuLib package/build logic deploys RitsuLib to game mods/STS2-RitsuLib. -->
         <RitsuLibDeployDir Condition="'$(RitsuLibDeployDir)' == ''">$(Sts2Dir)\mods\STS2-RitsuLib</RitsuLibDeployDir>
         <!-- 目标游戏版本，决定用哪个 RitsuLib 包（两者命名空间相同，只是 compat 运行时不同）：
-             0.110.0 → STS2.RitsuLib.Compat.0.110.0：面向游戏 0.110.x（本机开发副本 0.110.1 用这个，默认）
-             0.111.0 → STS2.RitsuLib：面向游戏 0.111.0（主线包）
-             用法：dotnet build /p:RitsuLibTargetVersion=0.111.0 ...
+             0.111.0 → STS2.RitsuLib：面向游戏 0.111.0（主线包；**当前游戏版本，也是默认**）
+             0.110.0 → STS2.RitsuLib.Compat.0.110.0：面向游戏 0.110.x（旧分支，仅回溯排查时用）
+             用法：dotnet build /p:RitsuLibTargetVersion=0.110.0 ...
              ⚠️ 切换会按包的 compat-target.txt 重写 $(RitsuLibDeployDir)\compat\ 整个目录，
-                所以给 0.111.0 出包时必须同时把 RitsuLibDeployDir 指到临时目录，
-                否则会把本机 0.110.1 游戏里的 RitsuLib 换成 0.111.0 版。 -->
-        <RitsuLibTargetVersion Condition="'$(RitsuLibTargetVersion)' == ''">0.110.0</RitsuLibTargetVersion>
+                所以给 0.110.0 出包时必须同时把 RitsuLibDeployDir 指到临时目录，
+                否则会把本机 0.111.0 游戏里的 RitsuLib 换成 0.110.0 版。 -->
+        <RitsuLibTargetVersion Condition="'$(RitsuLibTargetVersion)' == ''">0.111.0</RitsuLibTargetVersion>
         <CopyModOnBuild Condition="'$(CopyModOnBuild)' == ''">true</CopyModOnBuild>
         <RunPckExport Condition="'$(RunPckExport)' == '' and '$(DesignTimeBuild)' != 'true'">true</RunPckExport>
         <RunPckExport Condition="'$(RunPckExport)' == ''">false</RunPckExport>

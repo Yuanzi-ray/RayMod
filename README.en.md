@@ -2,6 +2,34 @@
 
 Languages: [中文](README.md) | English
 
+> ## ⚠️ Read this first
+>
+> **This repository is the SOURCE-ONLY release of RayMod** (Steam Workshop item: `sharedfiles/filedetails/?id=3820248420`).
+> Third-party copyrighted assets used by the mod (**Arknights voice lines, Spine skeletons, character and card art**)
+> are **intentionally excluded** — so **cloning this repo will not produce a working mod**.
+>
+> 👉 **Full details in [`SOURCE-NOTICE.md`](SOURCE-NOTICE.md)** (what is here · what is not · how to supply your own assets).
+
+---
+
+## About this mod
+
+Adds "Ray" (莱伊), the well driller from *Arknights*, to *Slay the Spire 2* as a playable character.
+
+* **92 cards** (7 basic · 20 common · 36 uncommon · 26 rare · 3 ancient) · 32 powers · 4 relics
+* **Three signature mechanics**: Depth · Ammo · Sand Beast
+* Three switchable skins (default / Summer / Radiant)
+* 28 Chinese + Japanese voice lines, combat SFX, card-play and hit VFX
+
+**Requirements**: subscribe to both `STS2-RitsuLib 0.6.7+` and `MinionLib 0.6.3+`; game version `0.111.0+`.
+
+**Author**: Yuanzi_ · Unofficial fan work, **non-commercial use only**.
+
+---
+
+<details>
+<summary>The rest of this file is the upstream RitsuLib mod-template documentation (kept for reference)</summary>
+
 A copyable, buildable RitsuLib mod template providing a general Godot/C# project layout, sample content, and static placeholder assets.
 
 **What the template includes:**
@@ -68,13 +96,14 @@ Set these values in `local.props` (the file is in `.gitignore`; do not commit it
 >
 > `dependencies[STS2-RitsuLib].version` in `RayMod.json` **must exactly match** the `STS2.RitsuLib` version your `.csproj` actually compiles against. The template build auto-syncs this dependency version; `min_game_version` and intentional lower runtime-floor declarations still need manual review. See [Pre-release checklist: version alignment](#pre-release-checklist-version-alignment) below for the step-by-step procedure.
 
-### Current version snapshot (as of 2026-05-22)
+### Current version snapshot (as of 2026-10-21)
 
 | Item | Value |
 |---|---|
-| Current STS2 game version | `0.106.0` |
-| Current RitsuLib version | `0.3.0` |
-| Template manifest status | `min_game_version` and `dependencies[STS2-RitsuLib].version` are aligned |
+| Current STS2 game version | `0.111.0` |
+| Current RitsuLib version | `0.6.7` |
+| Build target of this project | `RitsuLibTargetVersion = 0.111.0` (mainline `STS2.RitsuLib` package) |
+| Template manifest status | `min_game_version` (`0.111.0`) and `dependencies[STS2-RitsuLib].version` (`0.6.7`) are aligned |
 
 ### Version mapping
 
@@ -82,6 +111,7 @@ The table summarizes the mainline STS2 target for each boundary RitsuLib release
 
 | RitsuLib version | Mainline STS2 target | Compat packages |
 |---|---|---|
+| `v0.6.7` (since 2026-10-15, **used by this project**) | `0.111.0` | none (use the mainline `0.6.7` package) |
 | `v0.3.0+` (since 2026-05-22) | `0.106.0` | `0.103.2`; `0.104.0` compat removed |
 | `v0.2.29` ~ `v0.2.40` | `0.105.1` | `0.104.0`, `0.103.2` |
 | `v0.2.27` ~ `v0.2.28` | `0.105.0` | `0.104.0`, `0.103.2` |
@@ -227,9 +257,9 @@ These resources only exist to make the template visible and replaceable; they do
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,
-  "min_game_version": "0.106.0",
+  "min_game_version": "0.111.0",
   "dependencies": [
-    { "id": "STS2-RitsuLib", "version": "0.3.0" }
+    { "id": "STS2-RitsuLib", "version": "0.6.7" }
   ]
 }
 ```
@@ -258,3 +288,5 @@ These resources only exist to make the template visible and replaceable; they do
 - If a character resource field is not specified, RitsuLib fills it from the vanilla character config referenced by `PlaceholderCharacterId`.
 - Resource paths must start with `res://`; verify the directory name and casing inside the PCK are correct.
 - For `.tscn` files, make sure the scene is packed into the mod resources. If it needs a script, prefer a local wrapper class and call `EnsureGodotScriptsRegistered(...)` from `Entry.Initialize()`.
+
+</details>

@@ -98,13 +98,14 @@ Copy-Item .\local.props.template .\local.props
 >
 > `RayMod.json` 中 `dependencies[STS2-RitsuLib].version` **必须**与 `.csproj` 里 `STS2.RitsuLib` 包实际编译使用的版本一致。模板构建时会自动同步该依赖版本；`min_game_version` 和有意声明较低运行时下限的场景仍需人工确认。详细步骤见下方 [发布前 checklist：版本对齐](#发布前-checklist版本对齐)。
 
-### 当前版本快照（截至 2026-05-22）
+### 当前版本快照（截至 2026-10-21）
 
 | 项 | 值 |
 |---|---|
-| STS2 游戏当前版本 | `0.106.0` |
-| RitsuLib 当前版本 | `0.3.0` |
-| 模板 manifest 状态 | `min_game_version` 与 `dependencies[STS2-RitsuLib].version` 已对齐 |
+| STS2 游戏当前版本 | `0.111.0` |
+| RitsuLib 当前版本 | `0.6.7` |
+| 本工程编译目标 | `RitsuLibTargetVersion = 0.111.0`（`STS2.RitsuLib` 主线包） |
+| 模板 manifest 状态 | `min_game_version`（`0.111.0`）与 `dependencies[STS2-RitsuLib].version`（`0.6.7`）已对齐 |
 
 ### 版本对应表
 
@@ -112,6 +113,7 @@ Copy-Item .\local.props.template .\local.props
 
 | RitsuLib 版本 | 主要目标 STS2 版本 | 兼容（Compat）包 |
 |---|---|---|
+| `v0.6.7`（2026-10-15 起，**本工程当前使用**） | `0.111.0` | 无（直接用主线包 `0.6.7`） |
 | `v0.3.0+`（2026-05-22 起） | `0.106.0` | `0.103.2`；删除了 `0.104.0` 兼容支持 |
 | `v0.2.29` ~ `v0.2.40` | `0.105.1` | `0.104.0`、`0.103.2` |
 | `v0.2.27` ~ `v0.2.28` | `0.105.0` | `0.104.0`、`0.103.2` |
@@ -257,9 +259,9 @@ RayMod/
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,
-  "min_game_version": "0.106.0",
+  "min_game_version": "0.111.0",
   "dependencies": [
-    { "id": "STS2-RitsuLib", "version": "0.3.0" }
+    { "id": "STS2-RitsuLib", "version": "0.6.7" }
   ]
 }
 ```
